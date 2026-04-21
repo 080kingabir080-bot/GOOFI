@@ -3,140 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUS Gaming Hub</title>
+    <title>SUS Games Hub | Professional Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Assistant', sans-serif;
-            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: white;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden; /* ביטול פסי גלילה כלליים */
+        :root { --primary: #e94560; --secondary: #0f3460; --accent: #00d2ff; }
+        
+        body, html {
+            margin: 0; padding: 0; width: 100vw; height: 100vh;
+            overflow: hidden; font-family: 'Assistant', sans-serif;
+            background: #050505; color: white;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        /* רקע דינמי */
+        .bg-animate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050505 100%);
+            z-index: -1;
         }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+
+        /* מפלצת ואנימציית עיניים */
+        .monster-box {
+            position: absolute; bottom: -20px; right: -20px;
+            width: 120px; height: 120px; z-index: 10;
+        }
+        .monster-body {
+            width: 100px; height: 100px; border-radius: 40% 40% 20% 20%;
+            position: relative; animation: float 3s ease-in-out infinite;
+        }
+        .eye {
+            position: absolute; background: white; width: 25px; height: 25px;
+            border-radius: 50%; top: 25px;
+        }
+        .pupil {
+            position: absolute; background: black; width: 10px; height: 10px;
+            border-radius: 50%; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: lookAround 8s infinite;
+        }
+
+        @keyframes lookAround {
+            0%, 10%, 100% { transform: translate(-50%, -50%); }
+            15%, 25% { transform: translate(-80%, -20%); }
+            35%, 45% { transform: translate(20%, -60%); }
+            55%, 65% { transform: translate(-20%, 30%); }
+            75%, 85% { transform: translate(40%, 10%); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        /* הסתרת אלמנטים */
+        .page { display: none; height: 100vh; width: 100vw; animation: fadeIn 0.5s ease; }
+        .page.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .game-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px; padding: 20px; height: calc(100vh - 100px); overflow-y: auto;
+        }
+        .game-grid::-webkit-scrollbar { display: none; }
 
         .game-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 1/1; border-radius: 20px; cursor: pointer;
+            transition: 0.3s; position: relative; overflow: hidden;
         }
-
-        .game-card:hover {
-            transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
-            border-color: #00d2ff;
-        }
-
-        .scroll-area {
-            height: calc(100vh - 120px);
-            overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-        }
-        .scroll-area::-webkit-scrollbar { display: none; } /* Chrome/Safari */
-
-        .star-rating { color: #555; cursor: pointer; transition: 0.2s; }
-        .star-rating.active { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
-
-        input, textarea {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            color: white !important;
-            border-radius: 10px !important;
-        }
-
-        .btn-sus {
-            background: linear-gradient(45deg, #e94560, #950740);
-            transition: 0.3s;
-            border: none;
-            overflow: hidden;
-            position: relative;
-        }
-        .btn-sus:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4); }
-
-        #gameOverlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-        }
+        .game-card:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--accent); }
     </style>
 </head>
 <body>
+    <div class="bg-animate"></div>
 
-    <header class="h-[80px] flex items-center justify-between px-10 glass-panel m-2">
-        <h1 class="text-3xl font-bold tracking-tighter text-cyan-400">SUS<span class="text-white">GAMES</span></h1>
-        <div id="authSection" class="flex gap-4">
-            <button onclick="showModal('loginModal')" class="btn-sus px-6 py-2 rounded-full">התחברות</button>
-            <button id="adminBtn" onclick="showAdmin()" class="hidden border border-cyan-400 px-6 py-2 rounded-full hover:bg-cyan-400/20">ניהול</button>
-        </div>
-    </header>
+    <section id="homePage" class="page active flex-col">
+        <header class="h-20 flex items-center justify-between px-8 glass m-4">
+            <h1 class="text-3xl font-bold text-cyan-400 italic">SUS<span class="text-white">GAMES</span></h1>
+            <div id="navButtons" class="flex gap-4">
+                <button onclick="nav('loginPage')" class="px-5 py-2 border border-white/20 rounded-full hover:bg-white/10">התחברות</button>
+                <button onclick="nav('registerPage')" class="px-5 py-2 bg-cyan-500 rounded-full font-bold hover:bg-cyan-400">הירשם חינם</button>
+            </div>
+        </header>
+        <div id="gameGrid" class="game-grid">
+            </div>
+    </section>
 
-    <main class="p-6">
-        <div id="gameGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 scroll-area">
-            </div>
-    </main>
-
-    <div id="adminPanel" class="fixed inset-0 bg-black/90 z-[2000] hidden p-10 overflow-y-auto">
-        <div class="max-w-2xl mx-auto glass-panel p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">הוספת משחק חדש</h2>
-                <button onclick="hideAdmin()" class="text-red-400 text-xl font-bold">X</button>
-            </div>
-            <div class="space-y-4">
-                <input type="text" id="newGameTitle" placeholder="שם המשחק" class="w-full p-3">
-                <input type="text" id="newGameDesc" maxlength="25" placeholder="תיאור קצר (עד 25 תווים)" class="w-full p-3">
-                <textarea id="newGameCode" rows="10" placeholder="הדבק כאן את קוד ה-HTML/JS של המשחק" class="w-full p-3 font-mono text-sm"></textarea>
-                <button onclick="saveNewGame()" class="btn-sus w-full py-4 rounded-xl text-xl font-bold">פרסם משחק</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="gameOverlay">
-        <div class="h-[60px] flex items-center justify-between px-6 bg-white/5">
-            <h2 id="currentPlayingTitle" class="text-xl">שם המשחק</h2>
-            <button onclick="closeGame()" class="text-white text-3xl">&times;</button>
-        </div>
-        <div class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
-            <div class="flex-[3] glass-panel overflow-hidden relative">
-                <iframe id="gameIframe" class="w-full h-full border-none"></iframe>
-            </div>
-            <div class="flex-1 glass-panel p-6 flex flex-col gap-4 overflow-y-auto">
-                <h3 class="text-lg font-bold border-b border-white/10 pb-2">דרג והגב</h3>
-                <div class="flex gap-2 text-2xl justify-center" id="starContainer">
-                    <span class="star-rating" data-v="1">★</span>
-                    <span class="star-rating" data-v="2">★</span>
-                    <span class="star-rating" data-v="3">★</span>
-                    <span class="star-rating" data-v="4">★</span>
-                    <span class="star-rating" data-v="5">★</span>
+    <section id="loginPage" class="page items-center justify-center">
+        <div class="glass p-10 w-[400px] relative">
+            <h2 class="text-3xl font-bold mb-6 text-center">ברוך הבא</h2>
+            <input type="text" id="loginUser" placeholder="שם משתמש" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4 outline-none focus:border-cyan-400">
+            <input type="password" id="loginPass" placeholder="סיסמה" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-6 outline-none focus:border-cyan-400">
+            <button onclick="auth('login')" class="w-full py-4 bg-cyan-600 rounded-xl font-bold text-lg hover:bg-cyan-500 transition">כניסה למערכת</button>
+            <p class="text-center mt-4 text-sm text-white/50 cursor-pointer" onclick="nav('registerPage')">עוד לא נרשמת? צור חשבון</p>
+            
+            <div class="monster-box">
+                <div class="monster-body bg-blue-500">
+                    <div class="eye" style="left: 20px;"><div class="pupil"></div></div>
+                    <div class="eye" style="right: 20px;"><div class="pupil"></div></div>
                 </div>
-                <textarea id="commentInput" placeholder="מה דעתך על המשחק?" class="w-full p-2 text-sm" rows="3"></textarea>
-                <button onclick="submitReview()" class="btn-sus py-2 rounded-lg">שלח תגובה</button>
-                <div id="reviewsList" class="mt-4 space-y-3">
+            </div>
+        </div>
+    </section>
+
+    <section id="registerPage" class="page items-center justify-center">
+        <div class="glass p-10 w-[400px] relative">
+            <h2 class="text-3xl font-bold mb-6 text-center">חשבון חדש</h2>
+            <input type="text" id="regUser" placeholder="שם משתמש חדש" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4 outline-none focus:border-red-400">
+            <input type="password" id="regPass" placeholder="סיסמה" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-6 outline-none focus:border-red-400">
+            <button onclick="auth('register')" class="w-full py-4 bg-red-600 rounded-xl font-bold text-lg hover:bg-red-500 transition">הרשמה מהירה</button>
+            <p class="text-center mt-4 text-sm text-white/50 cursor-pointer" onclick="nav('loginPage')">כבר יש לך חשבון? התחבר</p>
+
+            <div class="monster-box">
+                <div class="monster-body bg-red-500">
+                    <div class="eye" style="left: 20px;"><div class="pupil"></div></div>
+                    <div class="eye" style="right: 20px;"><div class="pupil"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="adminPage" class="page flex-col p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-l from-cyan-400 to-purple-500">ADMIN CONTROL</h2>
+            <button onclick="nav('homePage')" class="px-6 py-2 border border-red-500 text-red-500 rounded-lg">יציאה מהפאנל</button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="glass p-8">
+                <h3 class="text-xl mb-4">הוספת משחק חדש</h3>
+                <input type="text" id="admTitle" placeholder="שם המשחק" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4">
+                <input type="text" id="admDesc" maxlength="25" placeholder="תיאור קצר (עד 25 תווים)" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4">
+                <textarea id="admCode" rows="8" placeholder="הדבק כאן קוד HTML/JS מלא" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4 font-mono"></textarea>
+                <button onclick="adminAddGame()" class="w-full py-3 bg-green-600 rounded-xl font-bold">פרסם עכשיו</button>
+            </div>
+            <div class="glass p-8">
+                <h3 class="text-xl mb-4">ניהול קטלוג</h3>
+                <div id="adminList" class="space-y-3 max-h-[400px] overflow-y-auto">
                     </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div id="loginModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[3000]">
-        <div class="glass-panel p-8 w-[350px] text-center">
-            <h2 class="text-2xl mb-6">כניסת משתמש</h2>
-            <input type="text" id="username" placeholder="שם משתמש" class="w-full mb-4 p-2 text-center">
-            <input type="password" id="password" placeholder="סיסמה" class="w-full mb-6 p-2 text-center">
-            <button onclick="handleLogin()" class="btn-sus w-full py-3 rounded-lg">התחבר / הירשם</button>
-            <p class="text-xs mt-4 text-white/50">טיפ: שם משתמש admin נותן גישת ניהול</p>
+    <div id="playerOverlay" class="fixed inset-0 bg-black/95 z-[5000] hidden flex-col">
+        <div class="h-16 flex items-center justify-between px-6 bg-white/5">
+            <span id="playerTitle" class="text-xl font-bold"></span>
+            <button onclick="closePlayer()" class="text-3xl">&times;</button>
+        </div>
+        <div class="flex-1 flex p-4 gap-4 overflow-hidden">
+            <iframe id="gameFrame" class="flex-[3] glass border-none rounded-3xl"></iframe>
+            <div class="flex-1 glass p-6 overflow-y-auto scroll-area">
+                <h4 class="font-bold border-b border-white/10 pb-2 mb-4">דירוג וביקורות</h4>
+                <div id="starInput" class="flex gap-2 text-3xl mb-4 justify-center">
+                    <span class="cursor-pointer text-gray-600" data-v="1">★</span>
+                    <span class="cursor-pointer text-gray-600" data-v="2">★</span>
+                    <span class="cursor-pointer text-gray-600" data-v="3">★</span>
+                    <span class="cursor-pointer text-gray-600" data-v="4">★</span>
+                    <span class="cursor-pointer text-gray-600" data-v="5">★</span>
+                </div>
+                <textarea id="revText" class="w-full bg-white/5 p-3 rounded-lg text-sm mb-2" placeholder="כתוב ביקורת..."></textarea>
+                <button onclick="postReview()" class="w-full py-2 bg-cyan-600 rounded-lg">שלח</button>
+                <div id="revList" class="mt-6 space-y-4"></div>
+            </div>
         </div>
     </div>
 
