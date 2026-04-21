@@ -85,6 +85,7 @@
             width: 95%; max-width: 700px; max-height: 85vh;
             z-index: 1000; display: none; flex-direction: column;
             box-shadow: 0 50px 100px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
         }
 
         .page { display: none; height: 100vh; width: 100vw; flex-direction: column; animation: pageIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -151,7 +152,11 @@
         <div class="flex-1 p-12 flex gap-12 flex-wrap content-start">
             <div class="admin-icon" onclick="openAdminTool('addGameTool')">
                 <span class="text-4xl mb-2">⚡</span>
-                <span class="text-xs font-black uppercase tracking-tighter">הוספת תוכן</span>
+                <span class="text-xs font-black uppercase tracking-tighter">הוספת משחק</span>
+            </div>
+            <div class="admin-icon" onclick="openAdminTool('addToolWindow')">
+                <span class="text-4xl mb-2">🛠️</span>
+                <span class="text-xs font-black uppercase tracking-tighter">יצירת-TOOL</span>
             </div>
             <div class="admin-icon" onclick="openAdminTool('manageGamesTool')">
                 <span class="text-4xl mb-2">💾</span>
@@ -162,6 +167,7 @@
                 <span class="text-xs font-black uppercase tracking-tighter">סטטיסטיקה</span>
             </div>
         </div>
+
         <div id="addGameTool" class="admin-window glass rounded-[45px] p-12">
             <div class="flex justify-between items-center mb-10">
                 <h3 class="text-3xl font-black italic">DEPLOY NEW GAME</h3>
@@ -169,8 +175,20 @@
             </div>
             <input type="text" id="adm_name" placeholder="שם המשחק (למשל: Neon Shooter)" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-6 text-xl focus:border-[var(--cyan)] transition">
             <textarea id="adm_code" rows="10" placeholder="הדבק כאן את קוד ה-HTML/JS של המשחק..." class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-8 font-mono text-xs focus:border-[var(--cyan)] transition"></textarea>
-            <button onclick="saveNewGame()" class="w-full py-6 bg-cyan-600 text-white text-xl font-black rounded-2xl hover:bg-cyan-500 shadow-2xl transition">שגר לאתר המבצעי</button>
+            <button onclick="saveNewItem('game')" class="w-full py-6 bg-cyan-600 text-white text-xl font-black rounded-2xl hover:bg-cyan-500 shadow-2xl transition">שגר לאתר המבצעי</button>
         </div>
+
+        <div id="addToolWindow" class="admin-window glass rounded-[45px] p-12">
+            <div class="flex justify-between items-center mb-10">
+                <h3 class="text-3xl font-black italic">CREATE NEW TOOL</h3>
+                <button onclick="closeAdminTool('addToolWindow')" class="text-2xl opacity-40 hover:opacity-100">✕</button>
+            </div>
+            <input type="text" id="tool_name" placeholder="שם הכלי (למשל: מחשבון מקצועי)" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 text-xl focus:border-[var(--cyan)] transition">
+            <input type="text" id="tool_emoji" placeholder="בחר אימוג'י לסמל (למשל: ⚙️)" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 text-xl focus:border-[var(--cyan)] transition">
+            <textarea id="tool_code" rows="8" placeholder="הדבק כאן את קוד ה-HTML/CSS/JS של הכלי..." class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-8 font-mono text-xs focus:border-[var(--cyan)] transition"></textarea>
+            <button onclick="saveNewItem('tool')" class="w-full py-6 bg-emerald-600 text-white text-xl font-black rounded-2xl hover:bg-emerald-500 shadow-2xl transition">הטמע כלי במערכת</button>
+        </div>
+
         <div id="manageGamesTool" class="admin-window glass rounded-[45px] p-12 overflow-hidden flex flex-col">
             <div class="flex justify-between items-center mb-8">
                 <h3 class="text-3xl font-black italic">LIBRARY MANAGER</h3>
@@ -217,7 +235,6 @@
     </section>
 
     <script>
-        // (כל הלוגיקה שלך מהקוד הקודם, היא עובדת מושלם)
         let games = JSON.parse(localStorage.getItem('pp_ultra_v1')) || [];
         let users = JSON.parse(localStorage.getItem('pp_users_v1')) || [];
         let currentUser = JSON.parse(sessionStorage.getItem('pp_active')) || null;
@@ -264,20 +281,37 @@
 
         function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; document.getElementById('gameFrame').src = ''; }
 
-        function saveNewGame() {
-            const n = document.getElementById('adm_name').value;
-            const c = document.getElementById('adm_code').value;
-            if(!n || !c) return;
-            games.push({id: Date.now(), title: n, code: c});
+        // פונקציה מאוחדת לשמירת משחקים או כלים
+        function saveNewItem(type) {
+            let n, c, icon;
+            if(type === 'game') {
+                n = document.getElementById('adm_name').value;
+                c = document.getElementById('adm_code').value;
+                icon = null; // משחק מקבל אייקון ברירת מחדל
+                if(!n || !c) return;
+                games.push({id: Date.now(), title: n, code: c, type: 'game'});
+                closeAdminTool('addGameTool');
+            } else {
+                n = document.getElementById('tool_name').value;
+                icon = document.getElementById('tool_emoji').value || '🛠️';
+                c = document.getElementById('tool_code').value;
+                if(!n || !c) return;
+                games.push({id: Date.now(), title: n, code: c, type: 'tool', emoji: icon});
+                closeAdminTool('addToolWindow');
+            }
+            
             localStorage.setItem('pp_ultra_v1', JSON.stringify(games));
-            closeAdminTool('addGameTool');
             renderAdminGames();
+            alert("התוכן נשמר בהצלחה!");
         }
 
         function renderAdminGames() {
             document.getElementById('adminGameList').innerHTML = games.map(g => `
                 <div class="flex justify-between items-center glass p-5 rounded-2xl border-white/5">
-                    <span class="font-bold text-sm">${g.title}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="opacity-50 text-xs">${g.type === 'tool' ? '🛠️' : '🎮'}</span>
+                        <span class="font-bold text-sm">${g.title}</span>
+                    </div>
                     <button onclick="delGame(${g.id})" class="text-red-500 font-black border border-red-500/20 px-4 py-1.5 rounded-xl hover:bg-red-500 hover:text-white transition">DELETE</button>
                 </div>
             `).join('');
@@ -297,15 +331,20 @@
         function renderGames() {
             const grid = document.getElementById('gameGrid');
             const isP = currentUser?.isPrem;
-            grid.innerHTML = games.map(g => `
+            grid.innerHTML = games.map(g => {
+                // בחירת האייקון להצגה
+                let displayIcon = isP ? '💎' : '⚡'; // ברירת מחדל למשחק
+                if(g.type === 'tool' && g.emoji) displayIcon = g.emoji;
+
+                return `
                 <div class="game-card" onclick="tryOpenGame('${g.id}')">
                     <div class="card-inner">
-                        <div class="w-20 h-20 bg-white/5 rounded-[22px] border border-white/10 flex items-center justify-center text-4xl mb-4">${isP ? '💎' : '⚡'}</div>
+                        <div class="w-20 h-20 bg-white/5 rounded-[22px] border border-white/10 flex items-center justify-center text-4xl mb-4">${displayIcon}</div>
                         <span class="text-[11px] font-black tracking-widest uppercase text-center opacity-70">${g.title}</span>
-                        <div class="mt-4 px-4 py-1 bg-white/5 rounded-full text-[9px] font-bold border border-white/10">PLAY</div>
+                        <div class="mt-4 px-4 py-1 bg-white/5 rounded-full text-[9px] font-bold border border-white/10">${g.type === 'tool' ? 'OPEN TOOL' : 'PLAY'}</div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             
             const auth = document.getElementById('authArea');
             if(currentUser) {
