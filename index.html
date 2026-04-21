@@ -3,60 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOOFI Tools - ניהול ושליטה</title>
+    <title>GOOFI TOOLS | Strategic Control Center</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="loading">
 
-<div class="space-bg"></div>
-
-<header>
-    <div class="logo-container">
-        <h1 class="logo">GOOFI</h1>
+    <div class="stars-container">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
     </div>
-    <div class="user-profile" id="userProfileTrigger">
-        <div class="profile-img-container" id="profileBorder">
-            <img src="https://via.placeholder.com/50" id="profileDisplay" alt="פרופיל">
+
+    <nav class="premium-nav">
+        <div class="logo-wrapper">
+            <div class="logo-glow"></div>
+            <h1 class="main-logo">GOOFI</h1>
+        </div>
+        
+        <div class="nav-controls">
+            <div class="tier-indicator" id="navTier">GUEST</div>
+            <div class="profile-trigger" id="profileBtn">
+                <div class="avatar-frame" id="avatarFrame">
+                    <img src="https://ui-avatars.com/api/?name=G&background=0D8ABC&color=fff" id="displayAvatar" alt="User">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="main-header">
+        <div class="header-content">
+            <h2 class="glitch-title" data-text="GOOFI TOOLS">GOOFI TOOLS</h2>
+            <p class="sub-text">מערכות ניהול, שליטה ואסטרטגיה כלכלית. הכלים הכי חזקים בשוק בגרסת הפרימיום החדשה.</p>
+        </div>
+    </header>
+
+    <section class="tools-showcase" id="toolsGrid">
+        </section>
+
+    <aside class="profile-sidebar" id="profileSidebar">
+        <div class="sidebar-header">
+            <h3>אזור אישי</h3>
+            <button class="close-btn" id="closeSidebar">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <div class="edit-avatar">
+                <img src="" id="sidebarAvatar" alt="Profile">
+                <input type="file" id="uploadInput" hidden>
+                <label for="uploadInput" class="upload-label">שנה תמונה</label>
+            </div>
+            <div class="user-info-fields">
+                <label>שם מלא (עד 12 תווים)</label>
+                <input type="text" id="editName" maxlength="12">
+                <label>אימייל</label>
+                <input type="email" id="editEmail" readonly>
+            </div>
+            <div class="subscription-status">
+                <p>מנוי נוכחי: <span id="statusTier">FREE</span></p>
+                <div class="tier-progress"></div>
+            </div>
+            <button class="save-btn" id="saveProfile">שמור שינויים</button>
+            <button class="logout-btn" id="logoutBtn">התנתק</button>
+        </div>
+    </aside>
+
+    <div class="overlay" id="globalModal">
+        <div class="modal-window" id="modalWindow">
+            <div class="modal-header">
+                <h3 id="modalTitle">כותרת</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                </div>
         </div>
     </div>
-</header>
 
-<main>
-    <section class="hero">
-        <h2 class="main-title">GOOFI Tools</h2>
-        <p class="description">
-            🚀 ברוכים הבאים לעולם של שליטה! הכלים שלנו הם חוד החנית בניהול, כלכלה ובקרה. 📈 כלים ייחודיים מבית גופי טולס שיעזרו לכם לכבוש את היעדים שלכם. 💎
-        </p>
-    </section>
-
-    <div class="tools-grid" id="toolsGrid">
-        </div>
-</main>
-
-<div id="modalOverlay" class="modal-overlay">
-    <div class="modal-content" id="modalBody">
-        </div>
-</div>
-
-<div id="loaderOverlay" class="loader-overlay">
-    <div class="loader-box">
-        <div class="timer-circle" id="timerCircle">
-            <span id="timerNum">20</span>
-        </div>
-        <div class="ad-space">
-            <h3>פרסומת GOOFI</h3>
-            <p>שדרגו למנוי פרימיום ותיהנו מגישה מיידית ללא המתנה!</p>
-            <p>GOOFI - הכלים החזקים ביותר לניהול העסק שלך.</p>
+    <div class="loader-screen" id="loader">
+        <div class="loader-box">
+            <div class="ad-banner">
+                <img src="https://via.placeholder.com/600x200/000/fff?text=GOOFI+PREMIUM+AD" alt="Ad">
+                <div class="ad-content">
+                    <h4>שדרג עכשיו ל-DIAMOND</h4>
+                    <p>קבל גישה לכל הכלים ללא המתנה ועם תמיכה 24/7</p>
+                </div>
+            </div>
+            <div class="timer-ring">
+                <svg>
+                    <circle cx="70" cy="70" r="60"></circle>
+                    <circle id="progressCircle" cx="70" cy="70" r="60"></circle>
+                </svg>
+                <div class="number" id="timerCount">20</div>
+            </div>
         </div>
     </div>
-</div>
 
-<footer>
-    <div class="footer-signature">
-        Powered by Shimon <span class="live-dot" id="footerDot"></span>
-    </div>
-</footer>
+    <footer class="main-footer">
+        <div class="signature">
+            <p>Powered by <span class="shimon">Shimon</span></p>
+            <div class="live-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">SYSTEM READY</span>
+            </div>
+        </div>
+    </footer>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
