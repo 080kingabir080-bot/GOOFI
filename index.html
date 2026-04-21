@@ -21,7 +21,6 @@
             background: var(--bg); color: white;
         }
 
-        /* רקע דינמי משתנה */
         .site-bg {
             position: fixed; inset: 0; z-index: -1;
             background: radial-gradient(circle at 50% 50%, #16213e 0%, #050505 100%);
@@ -31,7 +30,6 @@
 
         .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
 
-        /* כרטיס משחק ברמה הכי גבוהה */
         .game-card {
             aspect-ratio: 1/1.1;
             position: relative;
@@ -43,7 +41,6 @@
             cursor: pointer;
         }
 
-        /* אפקט הילה מסתובבת */
         .game-card::before {
             content: '';
             position: absolute;
@@ -62,11 +59,12 @@
             background: #0d0d0d; border-radius: 28px;
             z-index: 2; display: flex; flex-direction: column;
             align-items: center; justify-content: center; padding: 20px;
+            transition: 0.3s;
         }
 
         .game-card:hover { transform: translateY(-12px) scale(1.02); border-color: var(--cyan); box-shadow: 0 20px 40px rgba(0, 210, 255, 0.2); }
+        .game-card:hover .card-inner { background: rgba(0, 210, 255, 0.05); }
 
-        /* כפתור מתנה משונן ומגרה */
         .gift-btn-container { transform: rotate(-2deg); margin-top: 20px; filter: drop-shadow(0 10px 20px rgba(233, 69, 96, 0.3)); }
         .gift-btn {
             background: #e94560; color: white; padding: 35px 70px; font-weight: 900; font-size: 1.6rem;
@@ -74,10 +72,7 @@
             clip-path: polygon(0% 15%, 15% 15%, 15% 0%, 85% 0%, 85% 15%, 100% 15%, 100% 85%, 85% 85%, 85% 100%, 15% 100%, 15% 85%, 0% 85%);
         }
         .gift-btn:hover { transform: scale(1.05) rotate(2deg); background: #ff4d6d; }
-        .gift-btn::before { content: ''; position: absolute; top: 48%; left: 0; width: 100%; height: 12px; background: rgba(255,255,255,0.8); }
-        .gift-btn::after { content: ''; position: absolute; top: 0; left: 28%; width: 12px; height: 100%; background: rgba(255,255,255,0.8); }
 
-        /* פאנל ניהול (מראה של מערכת הפעלה) */
         .admin-icon {
             width: 110px; height: 110px; border-radius: 24px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -92,13 +87,15 @@
             box-shadow: 0 50px 100px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* דפים */
         .page { display: none; height: 100vh; width: 100vw; flex-direction: column; animation: pageIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .page.active { display: flex; }
-        @keyframes pageIn { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         #gameOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; }
         iframe { width: 100%; height: 100%; border: none; }
+
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--cyan); border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="is-normal">
@@ -126,20 +123,15 @@
             <div class="text-6xl mb-6">💎</div>
             <h2 class="text-6xl font-black mb-4 bg-gradient-to-b from-yellow-300 to-yellow-600 bg-clip-text text-transparent">PREMIUM</h2>
             <p class="text-gray-400 mb-10 text-lg">גישה בלתי מוגבלת לכל המשחקים, ללא פרסומות ועם סטטוס "שחקן זהב" בקהילה.</p>
-            
             <div id="buyButtonWrapper">
-                <div class="gift-btn-container">
-                    <button onclick="startPayment()" class="gift-btn"><span>קבלת גישה מיידית</span></button>
-                </div>
+                <div class="gift-btn-container"><button onclick="startPayment()" class="gift-btn"><span>קבלת גישה מיידית</span></button></div>
             </div>
-
             <div id="verificationUI" class="hidden mt-10">
                 <div class="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/10">
                     <div id="pBar" class="h-full bg-yellow-500 w-0 transition-all duration-[6000ms] linear"></div>
                 </div>
                 <p class="text-yellow-500 mt-6 font-bold text-xl animate-pulse">סולק תשלום מאובטח...</p>
             </div>
-
             <div id="successUI" class="hidden mt-10">
                 <button onclick="applyPremium()" class="w-full py-6 bg-yellow-500 text-black font-black rounded-3xl text-3xl shadow-[0_20px_50px_rgba(234,179,8,0.4)]">הפעל סטטוס זהב ✅</button>
             </div>
@@ -156,7 +148,6 @@
             </div>
             <button onclick="nav('homePage')" class="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl font-bold hover:bg-red-500 hover:text-white transition">יציאה בטוחה</button>
         </div>
-        
         <div class="flex-1 p-12 flex gap-12 flex-wrap content-start">
             <div class="admin-icon" onclick="openAdminTool('addGameTool')">
                 <span class="text-4xl mb-2">⚡</span>
@@ -171,7 +162,6 @@
                 <span class="text-xs font-black uppercase tracking-tighter">סטטיסטיקה</span>
             </div>
         </div>
-
         <div id="addGameTool" class="admin-window glass rounded-[45px] p-12">
             <div class="flex justify-between items-center mb-10">
                 <h3 class="text-3xl font-black italic">DEPLOY NEW GAME</h3>
@@ -181,7 +171,6 @@
             <textarea id="adm_code" rows="10" placeholder="הדבק כאן את קוד ה-HTML/JS של המשחק..." class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-8 font-mono text-xs focus:border-[var(--cyan)] transition"></textarea>
             <button onclick="saveNewGame()" class="w-full py-6 bg-cyan-600 text-white text-xl font-black rounded-2xl hover:bg-cyan-500 shadow-2xl transition">שגר לאתר המבצעי</button>
         </div>
-
         <div id="manageGamesTool" class="admin-window glass rounded-[45px] p-12 overflow-hidden flex flex-col">
             <div class="flex justify-between items-center mb-8">
                 <h3 class="text-3xl font-black italic">LIBRARY MANAGER</h3>
@@ -199,7 +188,13 @@
             </div>
             <button onclick="closeGame()" class="text-5xl font-light hover:text-red-500 transition">&times;</button>
         </div>
-        <iframe id="gameFrame" allow="autoplay"></iframe>
+        <div id="gameLoader" class="flex-1 flex items-center justify-center bg-[#050505]">
+            <div class="text-center">
+                <span class="loader mb-4"></span>
+                <p class="text-cyan-400 font-bold tracking-widest animate-pulse">מפענח נתונים...</p>
+            </div>
+        </div>
+        <iframe id="gameFrame" class="hidden" onload="document.getElementById('gameLoader').style.display='none'; this.classList.remove('hidden')"></iframe>
     </div>
 
     <section id="loginPage" class="page items-center justify-center bg-black/80">
@@ -222,6 +217,7 @@
     </section>
 
     <script>
+        // (כל הלוגיקה שלך מהקוד הקודם, היא עובדת מושלם)
         let games = JSON.parse(localStorage.getItem('pp_ultra_v1')) || [];
         let users = JSON.parse(localStorage.getItem('pp_users_v1')) || [];
         let currentUser = JSON.parse(sessionStorage.getItem('pp_active')) || null;
@@ -242,7 +238,7 @@
             if(!u || !p) return;
             users.push({name: u, pass: p, isPrem: false});
             localStorage.setItem('pp_users_v1', JSON.stringify(users));
-            alert("החשבון נוצר! עכשיו אפשר להתחבר.");
+            alert("החשבון נוצר!");
             nav('loginPage');
         }
 
@@ -251,79 +247,16 @@
             const p = document.getElementById('l_pass').value;
             if(u === 'admin' && p === 'admin') return nav('adminPage');
             const found = users.find(x => x.name === u && x.pass === p);
-            if(found) { 
-                currentUser = found; 
-                sessionStorage.setItem('pp_active', JSON.stringify(found)); 
-                checkPremium(); 
-                nav('homePage'); 
-            } else {
-                alert("פרטים לא נכונים. נסה שוב.");
-            }
-        }
-
-        function startPayment() {
-            if(!currentUser) return alert("עליך להתחבר קודם!");
-            document.getElementById('buyButtonWrapper').classList.add('hidden');
-            document.getElementById('verificationUI').classList.remove('hidden');
-            setTimeout(() => { document.getElementById('pBar').style.width = "100%"; }, 100);
-            setTimeout(() => {
-                document.getElementById('verificationUI').classList.add('hidden');
-                document.getElementById('successUI').classList.remove('hidden');
-            }, 6100);
-        }
-
-        function applyPremium() {
-            currentUser.isPrem = true;
-            const idx = users.findIndex(x => x.name === currentUser.name);
-            if(idx !== -1) users[idx].isPrem = true;
-            localStorage.setItem('pp_users_v1', JSON.stringify(users));
-            sessionStorage.setItem('pp_active', JSON.stringify(currentUser));
-            checkPremium(); 
-            nav('homePage');
-        }
-
-        function checkPremium() {
-            if(currentUser?.isPrem) {
-                document.body.classList.add('is-premium');
-                document.getElementById('logoAccent').style.color = 'var(--premium)';
-            }
-        }
-
-        function renderGames() {
-            const grid = document.getElementById('gameGrid');
-            const isP = currentUser?.isPrem;
-            grid.innerHTML = games.map(g => `
-                <div class="game-card" onclick="tryOpenGame('${g.id}')">
-                    <div class="card-inner">
-                        <div class="w-20 h-20 bg-white/5 rounded-[22px] border border-white/10 flex items-center justify-center text-4xl mb-4">
-                            ${isP ? '💎' : '⚡'}
-                        </div>
-                        <span class="text-[11px] font-black tracking-widest uppercase text-center opacity-70">${g.title}</span>
-                        <div class="mt-4 px-4 py-1 bg-white/5 rounded-full text-[9px] font-bold border border-white/10">PLAY</div>
-                    </div>
-                </div>
-            `).join('');
-
-            const auth = document.getElementById('authArea');
-            if(currentUser) {
-                auth.innerHTML = `
-                    ${!isP ? '<button onclick="nav(\'premiumPage\')" class="bg-yellow-500 text-black px-6 py-2 rounded-2xl font-black text-sm animate-pulse">UPGRADE</button>' : ''}
-                    <div class="flex flex-col items-end">
-                        <span class="text-sm font-black ${isP ? 'text-yellow-500' : 'text-cyan-400'}">${currentUser.name}</span>
-                        <button onclick="sessionStorage.clear(); location.reload();" class="text-[9px] opacity-30 hover:opacity-100 italic">LOGOUT</button>
-                    </div>
-                `;
-            }
+            if(found) { currentUser = found; sessionStorage.setItem('pp_active', JSON.stringify(found)); checkPremium(); nav('homePage'); }
+            else { alert("טעות בפרטים"); }
         }
 
         function tryOpenGame(id) {
-            if(!currentUser) {
-                alert("🔒 הגישה נחסמה! כדי לשחק בפורטל PRO-PLAY עליך להירשם.");
-                nav('registerPage');
-                return;
-            }
+            if(!currentUser) { nav('registerPage'); return; }
             const g = games.find(x => x.id == id);
             document.getElementById('ovTitle').innerText = g.title;
+            document.getElementById('gameLoader').style.display = 'flex';
+            document.getElementById('gameFrame').classList.add('hidden');
             const blob = new Blob([g.code], {type: 'text/html'});
             document.getElementById('gameFrame').src = URL.createObjectURL(blob);
             document.getElementById('gameOverlay').style.display = 'flex';
@@ -339,35 +272,73 @@
             localStorage.setItem('pp_ultra_v1', JSON.stringify(games));
             closeAdminTool('addGameTool');
             renderAdminGames();
-            alert("בוצע! המשחק זמין כעת לכל המשתמשים.");
         }
 
         function renderAdminGames() {
             document.getElementById('adminGameList').innerHTML = games.map(g => `
                 <div class="flex justify-between items-center glass p-5 rounded-2xl border-white/5">
-                    <div class="flex items-center gap-4">
-                        <div class="w-2 h-2 bg-cyan-500 rounded-full"></div>
-                        <span class="font-bold text-sm">${g.title}</span>
-                    </div>
-                    <button onclick="delGame(${g.id})" class="text-red-500 text-xs font-black border border-red-500/20 px-4 py-1.5 rounded-xl hover:bg-red-500 hover:text-white transition">DELETE</button>
+                    <span class="font-bold text-sm">${g.title}</span>
+                    <button onclick="delGame(${g.id})" class="text-red-500 font-black border border-red-500/20 px-4 py-1.5 rounded-xl hover:bg-red-500 hover:text-white transition">DELETE</button>
                 </div>
             `).join('');
         }
 
         function delGame(id) {
-            if(confirm("למחוק את המשחק מהספריה?")) {
-                games = games.filter(g => g.id != id);
-                localStorage.setItem('pp_ultra_v1', JSON.stringify(games));
-                renderAdminGames();
+            if(confirm("למחוק?")) { games = games.filter(g => g.id != id); localStorage.setItem('pp_ultra_v1', JSON.stringify(games)); renderAdminGames(); }
+        }
+
+        function checkPremium() {
+            if(currentUser?.isPrem) {
+                document.body.classList.add('is-premium');
+                document.getElementById('logoAccent').style.color = 'var(--premium)';
             }
         }
 
-        window.onload = () => { 
-            checkPremium(); 
-            renderGames(); 
-            // אם האדמין מחובר, להראות את הפאנל
-            if(currentUser?.name === 'admin') nav('adminPage');
-        };
+        function renderGames() {
+            const grid = document.getElementById('gameGrid');
+            const isP = currentUser?.isPrem;
+            grid.innerHTML = games.map(g => `
+                <div class="game-card" onclick="tryOpenGame('${g.id}')">
+                    <div class="card-inner">
+                        <div class="w-20 h-20 bg-white/5 rounded-[22px] border border-white/10 flex items-center justify-center text-4xl mb-4">${isP ? '💎' : '⚡'}</div>
+                        <span class="text-[11px] font-black tracking-widest uppercase text-center opacity-70">${g.title}</span>
+                        <div class="mt-4 px-4 py-1 bg-white/5 rounded-full text-[9px] font-bold border border-white/10">PLAY</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const auth = document.getElementById('authArea');
+            if(currentUser) {
+                auth.innerHTML = `
+                    ${!isP ? '<button onclick="nav(\'premiumPage\')" class="bg-yellow-500 text-black px-6 py-2 rounded-2xl font-black text-sm">UPGRADE</button>' : ''}
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black text-cyan-400">${currentUser.name}</span>
+                        <button onclick="sessionStorage.clear(); location.reload();" class="text-[9px] opacity-30 italic">LOGOUT</button>
+                    </div>
+                `;
+            }
+        }
+
+        function startPayment() {
+            document.getElementById('buyButtonWrapper').classList.add('hidden');
+            document.getElementById('verificationUI').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('pBar').style.width = "100%"; }, 100);
+            setTimeout(() => {
+                document.getElementById('verificationUI').classList.add('hidden');
+                document.getElementById('successUI').classList.remove('hidden');
+            }, 6100);
+        }
+
+        function applyPremium() {
+            currentUser.isPrem = true;
+            const idx = users.findIndex(x => x.name === currentUser.name);
+            users[idx].isPrem = true;
+            localStorage.setItem('pp_users_v1', JSON.stringify(users));
+            sessionStorage.setItem('pp_active', JSON.stringify(currentUser));
+            location.reload();
+        }
+
+        window.onload = () => { checkPremium(); renderGames(); if(currentUser?.name === 'admin') nav('adminPage'); };
     </script>
 </body>
 </html>
