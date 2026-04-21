@@ -1,122 +1,128 @@
-/* פונטים ומשתנים */
-@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;700;800&display=swap');
+/* פונטים והגדרות בסיס */
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap');
 
 :root {
-    --bg: #030308;
-    --silver: linear-gradient(135deg, #7f8c8d 0%, #bdc3c7 50%, #7f8c8d 100%);
-    --gold: linear-gradient(135deg, #d4af37 0%, #f1c40f 50%, #d4af37 100%);
-    --diamond: linear-gradient(135deg, #b9f2ff 0%, #ffffff 50%, #b9f2ff 100%);
+    --bg-dark: #020205;
     --accent: #00f2ff;
-    --glass: rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.1);
+    --silver-color: #c0c0c0;
+    --gold-color: #ffd700;
+    --diamond-color: #b9f2ff;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 body {
-    background-color: var(--bg);
-    color: white;
+    margin: 0; padding: 0;
+    background: var(--bg-dark);
+    color: #fff;
     font-family: 'Assistant', sans-serif;
-    margin: 0;
-    line-height: 1.6;
     overflow-x: hidden;
+    direction: rtl;
 }
 
-/* כוכבים בתנועה */
-#stars, #stars2, #stars3 {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: transparent; z-index: -1;
+/* רקע חלל משופר */
+.stars-parallax {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
 }
+#stars-small, #stars-medium, #stars-large {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(white, rgba(255,255,255,0.2) 1px, transparent 20px);
+    background-size: 150px 150px;
+}
+#stars-medium { background-size: 250px 250px; opacity: 0.5; animation: twinkle 8s infinite alternate; }
+@keyframes twinkle { from { opacity: 0.2; } to { opacity: 0.7; } }
 
-#stars { width: 1px; height: 1px; box-shadow: 100px 200px #fff , 500px 400px #fff, 800px 100px #fff; animation: animStar 50s linear infinite; }
-@keyframes animStar { from { transform: translateY(0); } to { transform: translateY(-2000px); } }
-
-/* לוגו "חי" */
+/* לוגו ואנימציה */
 .main-logo {
-    font-size: 2.5rem; font-weight: 800; letter-spacing: 5px;
-    background: linear-gradient(to bottom, #fff, #444);
+    font-size: 2.8rem; font-weight: 800; letter-spacing: 4px;
+    background: linear-gradient(to bottom, #fff, #555);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    animation: breathe 4s ease-in-out infinite;
+    animation: pulseLogo 4s ease-in-out infinite;
+}
+@keyframes pulseLogo {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 20px var(--accent)); }
 }
 
-@keyframes breathe { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #fff); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 20px var(--accent)); } }
-
-/* גריד כלים פרימיום */
-.tools-showcase {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 40px;
-    padding: 60px;
+/* כותרת Hero */
+.title-animate {
+    font-size: 5rem; text-align: center;
+    position: relative; color: #fff;
+}
+.title-animate::before {
+    content: attr(data-text); position: absolute; top: 0; left: 0;
+    width: 100%; color: var(--accent); opacity: 0.3;
+    animation: glitch 3s infinite;
+}
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
 }
 
+/* כרטיסי כלים */
+.grid-wrapper {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px; padding: 60px;
+}
 .tool-card {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
-    border-radius: 30px;
-    padding: 40px;
-    text-align: center;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px;
+    padding: 30px; text-align: center;
+    transition: var(--transition);
+    position: relative; overflow: hidden;
 }
-
 .tool-card:hover {
-    transform: translateY(-20px);
+    transform: translateY(-15px);
     border-color: var(--accent);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 50px rgba(0, 242, 255, 0.1);
 }
-
-.tool-card::before {
-    content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: conic-gradient(transparent, var(--accent), transparent 30%);
-    animation: rotate 6s linear infinite;
-    opacity: 0; transition: 0.5s;
+.tool-card img {
+    width: 160px; height: 160px; border-radius: 50%;
+    object-fit: cover; border: 4px solid rgba(255,255,255,0.05);
+    margin-bottom: 20px; transition: 0.5s;
 }
+.tool-card:hover img { transform: scale(1.1) rotate(5deg); }
 
-.tool-card:hover::before { opacity: 0.2; }
+/* סטטוס מנויים - עיצוב */
+.badge-silver { color: var(--silver-color); text-shadow: 0 0 5px #fff; }
+.badge-gold { color: var(--gold-color); text-shadow: 0 0 10px var(--gold-color); }
+.badge-diamond { color: var(--diamond-color); text-shadow: 0 0 15px var(--accent); }
 
-@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-.tool-img-wrapper {
-    width: 180px; height: 180px; margin: 0 auto 25px;
-    border-radius: 50%; overflow: hidden; border: 4px solid var(--border);
-}
-
-.tool-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-.tool-card:hover img { transform: scale(1.1); }
-
-/* כפתורי רכישה */
-.btn-premium {
-    padding: 15px 40px; border-radius: 50px; border: none;
-    font-weight: 800; cursor: pointer; transition: 0.3s;
-    text-transform: uppercase; margin-top: 20px;
-}
-
-/* חבילות מנוי */
-.tier-box {
-    padding: 25px; border-radius: 20px; margin-bottom: 20px;
-    border: 1px solid rgba(255,255,255,0.1); transition: 0.4s;
-}
-
-.tier-box.silver { background: linear-gradient(45deg, #2c3e50, #000); border-right: 5px solid #bdc3c7; }
-.tier-box.gold { background: linear-gradient(45deg, #b8860b, #000); border-right: 5px solid #ffd700; }
-.tier-box.diamond { background: linear-gradient(45deg, #006666, #000); border-right: 5px solid var(--diamond); }
-
-/* טיימר טעינה מעגלי */
-.timer-ring svg { width: 150px; height: 150px; transform: rotate(-90deg); }
-.timer-ring circle {
-    fill: none; stroke-width: 8; stroke: #222;
-    stroke-dasharray: 377; stroke-dashoffset: 0;
-}
-#progressCircle { stroke: var(--accent); animation: countdown 20s linear forwards; }
-
-@keyframes countdown { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 377; } }
-
-/* אזור אישי Sidebar */
-.profile-sidebar {
+/* Sidebar */
+.side-panel {
     position: fixed; top: 0; left: -400px; width: 350px; height: 100%;
-    background: rgba(0,0,0,0.95); backdrop-filter: blur(30px);
+    background: rgba(0,0,0,0.98); border-right: 1px solid var(--accent);
     z-index: 2000; transition: 0.6s cubic-bezier(0.8, 0, 0.2, 1);
-    padding: 40px; border-right: 1px solid var(--accent);
+    padding: 30px;
 }
+.side-panel.open { left: 0; }
 
-.profile-sidebar.open { left: 0; }
+/* כפתור רכישה */
+.buy-btn-premium {
+    width: 100%; padding: 15px; border-radius: 50px; border: none;
+    font-weight: 800; cursor: pointer; text-transform: uppercase;
+    background: linear-gradient(45deg, #111, #333); color: #fff;
+    margin-top: 15px; position: relative; overflow: hidden;
+}
+.buy-btn-premium.scanning::after {
+    content: ""; position: absolute; top: -100%; left: 0; width: 100%; height: 50%;
+    background: rgba(0, 255, 255, 0.2); animation: scanLine 2s linear infinite;
+}
+@keyframes scanLine { from { top: -50%; } to { top: 150%; } }
+
+/* אנימציות חפצים יוקרתיים */
+.diamond-anim { animation: float 3s infinite ease-in-out; display: inline-block; }
+.gold-anim { animation: shine 2s infinite linear; display: inline-block; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+@keyframes shine { 0% { filter: brightness(1); } 50% { filter: brightness(2); } 100% { filter: brightness(1); } }
+
+/* UI מנויים סביב הדף */
+body.silver-ui { border: 4px solid var(--silver-color); }
+body.gold-ui { border: 6px solid var(--gold-color); box-shadow: inset 0 0 30px rgba(255,215,0,0.2); }
+body.diamond-ui { border: 8px solid var(--diamond-color); border-image: linear-gradient(45deg, var(--diamond-color), #fff) 1; }
