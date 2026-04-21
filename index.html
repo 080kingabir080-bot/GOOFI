@@ -3,107 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOOFI TOOLS | Strategic Control Center</title>
+    <title>GOOFI TOOLS | פלטפורמת השליטה האסטרטגית</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="loading">
+<body>
 
-    <div class="stars-container">
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        <div id="stars3"></div>
+    <div class="stars-parallax">
+        <div id="portal-bg"></div>
+        <div id="stars-small"></div>
+        <div id="stars-medium"></div>
+        <div id="stars-large"></div>
     </div>
 
-    <nav class="premium-nav">
-        <div class="logo-wrapper">
-            <div class="logo-glow"></div>
-            <h1 class="main-logo">GOOFI</h1>
-        </div>
-        
-        <div class="nav-controls">
-            <div class="tier-indicator" id="navTier">GUEST</div>
-            <div class="profile-trigger" id="profileBtn">
-                <div class="avatar-frame" id="avatarFrame">
-                    <img src="https://ui-avatars.com/api/?name=G&background=0D8ABC&color=fff" id="displayAvatar" alt="User">
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <div class="logo-area">
+                <div class="logo-glow"></div>
+                <h1 class="main-logo">GOOFI</h1>
+            </div>
+            
+            <div class="user-controls">
+                <div class="tier-badge" id="currentTierDisplay">GUEST</div>
+                <div class="profile-action" id="profileToggle">
+                    <div class="avatar-ring" id="avatarBorder">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="headerAvatar" alt="User">
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <header class="main-header">
-        <div class="header-content">
-            <h2 class="glitch-title" data-text="GOOFI TOOLS">GOOFI TOOLS</h2>
-            <p class="sub-text">מערכות ניהול, שליטה ואסטרטגיה כלכלית. הכלים הכי חזקים בשוק בגרסת הפרימיום החדשה.</p>
+    <header class="hero-section">
+        <div class="hero-content">
+            <h2 class="title-animate" data-text="GOOFI TOOLS">GOOFI TOOLS</h2>
+            <div class="separator"></div>
+            <p class="marketing-text">
+                🚀 ברוכים הבאים למרכז העצבים של GOOFI. הכלים שלנו הם חוד החנית בניהול, שליטה אסטרטגית וכלכלה וירטואלית. 
+                כאן תקבלו גישה למערכות ייחודיות שנבנו עבור מנהיגים ושותפים עסקיים. 📈💎
+            </p>
         </div>
     </header>
 
-    <section class="tools-showcase" id="toolsGrid">
-        </section>
+    <section class="tools-grid-container">
+        <div class="grid-wrapper" id="mainToolsGrid">
+            </div>
+    </section>
 
-    <aside class="profile-sidebar" id="profileSidebar">
-        <div class="sidebar-header">
-            <h3>אזור אישי</h3>
-            <button class="close-btn" id="closeSidebar">&times;</button>
+    <aside class="side-panel" id="sidePanel">
+        <div class="panel-header">
+            <h3>מרכז בקרה אישי</h3>
+            <button class="close-panel" id="closePanelBtn">&times;</button>
         </div>
-        <div class="sidebar-content">
-            <div class="edit-avatar">
-                <img src="" id="sidebarAvatar" alt="Profile">
-                <input type="file" id="uploadInput" hidden>
-                <label for="uploadInput" class="upload-label">שנה תמונה</label>
+        <div class="panel-body">
+            <div class="avatar-upload-zone">
+                <div class="preview-circle">
+                    <img src="" id="sidebarAvatarPreview" alt="Profile">
+                </div>
+                <input type="file" id="avatarInput" hidden accept="image/*">
+                <label for="avatarInput" class="upload-btn">החלף תמונה <i class="fas fa-camera"></i></label>
             </div>
-            <div class="user-info-fields">
-                <label>שם מלא (עד 12 תווים)</label>
-                <input type="text" id="editName" maxlength="12">
-                <label>אימייל</label>
-                <input type="email" id="editEmail" readonly>
+            
+            <div class="input-group">
+                <label>שם מלא</label>
+                <input type="text" id="userNameInput" placeholder="הכנס שם (2-12 תווים)" maxlength="12">
             </div>
-            <div class="subscription-status">
-                <p>מנוי נוכחי: <span id="statusTier">FREE</span></p>
-                <div class="tier-progress"></div>
+            
+            <div class="input-group">
+                <label>אימייל רשום</label>
+                <input type="email" id="userEmailInput" readonly>
             </div>
-            <button class="save-btn" id="saveProfile">שמור שינויים</button>
-            <button class="logout-btn" id="logoutBtn">התנתק</button>
+
+            <div class="status-card">
+                <p>סטטוס מנוי: <strong id="tierStatus">FREE</strong></p>
+                <div class="premium-benefits">
+                    <span id="tierIcon">🔓</span>
+                    <span id="tierBenefitDesc">גישה מוגבלת עם פרסומות</span>
+                </div>
+            </div>
+
+            <button class="action-btn save" id="saveProfileBtn">שמור נתונים</button>
+            <button class="action-btn logout" id="logoutBtn">התנתק מהמערכת</button>
         </div>
     </aside>
 
-    <div class="overlay" id="globalModal">
+    <div class="modal-overlay" id="mainModal">
         <div class="modal-window" id="modalWindow">
             <div class="modal-header">
-                <h3 id="modalTitle">כותרת</h3>
-                <span class="modal-close" id="modalClose">&times;</span>
+                <h3 id="modalTitle">פעולה נדרשת</h3>
+                <span class="modal-close" id="closeModalBtn">&times;</span>
             </div>
-            <div class="modal-body" id="modalBody">
+            <div class="modal-content" id="modalBody">
                 </div>
         </div>
     </div>
 
-    <div class="loader-screen" id="loader">
+    <div class="loader-overlay" id="loadingScreen">
         <div class="loader-box">
-            <div class="ad-banner">
-                <img src="https://via.placeholder.com/600x200/000/fff?text=GOOFI+PREMIUM+AD" alt="Ad">
-                <div class="ad-content">
-                    <h4>שדרג עכשיו ל-DIAMOND</h4>
-                    <p>קבל גישה לכל הכלים ללא המתנה ועם תמיכה 24/7</p>
+            <div class="ad-container">
+                <div class="ad-tag">פרסומת GOOFI</div>
+                <h4>רוצה לדלג על ההמתנה?</h4>
+                <p>מנויי GOLD ו-DIAMOND נהנים מגישה מיידית לכל הכלים ללא המתנה ופרסומות!</p>
+                <div class="ad-visual">
+                    <span class="coin-anim">🪙</span>
+                    <span class="gold-anim">🧈</span>
+                    <span class="diamond-anim">💎</span>
                 </div>
             </div>
-            <div class="timer-ring">
-                <svg>
-                    <circle cx="70" cy="70" r="60"></circle>
-                    <circle id="progressCircle" cx="70" cy="70" r="60"></circle>
+            <div class="timer-display">
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring__circle" stroke="#00f2ff" stroke-width="6" fill="transparent" r="52" cx="60" cy="60"/>
                 </svg>
-                <div class="number" id="timerCount">20</div>
+                <div class="time-left" id="timeLeftNum">20</div>
             </div>
         </div>
     </div>
 
-    <footer class="main-footer">
-        <div class="signature">
-            <p>Powered by <span class="shimon">Shimon</span></p>
-            <div class="live-status">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">SYSTEM READY</span>
-            </div>
+    <footer class="system-footer">
+        <div class="footer-content">
+            <p>Powered by <span class="shimon-name">Shimon</span> <span class="live-status-dot" id="footerDot"></span></p>
         </div>
     </footer>
 
