@@ -2,129 +2,144 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOOFI TOOLS | פלטפורמת השליטה האסטרטגית</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUS Gaming Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* ביטול פסי גלילה כלליים */
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .game-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            aspect-ratio: 1 / 1;
+        }
+
+        .game-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+            border-color: #00d2ff;
+        }
+
+        .scroll-area {
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .scroll-area::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        .star-rating { color: #555; cursor: pointer; transition: 0.2s; }
+        .star-rating.active { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+
+        input, textarea {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-radius: 10px !important;
+        }
+
+        .btn-sus {
+            background: linear-gradient(45deg, #e94560, #950740);
+            transition: 0.3s;
+            border: none;
+            overflow: hidden;
+            position: relative;
+        }
+        .btn-sus:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4); }
+
+        #gameOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="stars-parallax">
-        <div id="portal-bg"></div>
-        <div id="stars-small"></div>
-        <div id="stars-medium"></div>
-        <div id="stars-large"></div>
-    </div>
-
-    <nav class="glass-nav">
-        <div class="nav-container">
-            <div class="logo-area">
-                <div class="logo-glow"></div>
-                <h1 class="main-logo">GOOFI</h1>
-            </div>
-            
-            <div class="user-controls">
-                <div class="tier-badge" id="currentTierDisplay">GUEST</div>
-                <div class="profile-action" id="profileToggle">
-                    <div class="avatar-ring" id="avatarBorder">
-                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" id="headerAvatar" alt="User">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <header class="hero-section">
-        <div class="hero-content">
-            <h2 class="title-animate" data-text="GOOFI TOOLS">GOOFI TOOLS</h2>
-            <div class="separator"></div>
-            <p class="marketing-text">
-                🚀 ברוכים הבאים למרכז העצבים של GOOFI. הכלים שלנו הם חוד החנית בניהול, שליטה אסטרטגית וכלכלה וירטואלית. 
-                כאן תקבלו גישה למערכות ייחודיות שנבנו עבור מנהיגים ושותפים עסקיים. 📈💎
-            </p>
+    <header class="h-[80px] flex items-center justify-between px-10 glass-panel m-2">
+        <h1 class="text-3xl font-bold tracking-tighter text-cyan-400">SUS<span class="text-white">GAMES</span></h1>
+        <div id="authSection" class="flex gap-4">
+            <button onclick="showModal('loginModal')" class="btn-sus px-6 py-2 rounded-full">התחברות</button>
+            <button id="adminBtn" onclick="showAdmin()" class="hidden border border-cyan-400 px-6 py-2 rounded-full hover:bg-cyan-400/20">ניהול</button>
         </div>
     </header>
 
-    <section class="tools-grid-container">
-        <div class="grid-wrapper" id="mainToolsGrid">
+    <main class="p-6">
+        <div id="gameGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 scroll-area">
             </div>
-    </section>
+    </main>
 
-    <aside class="side-panel" id="sidePanel">
-        <div class="panel-header">
-            <h3>מרכז בקרה אישי</h3>
-            <button class="close-panel" id="closePanelBtn">&times;</button>
-        </div>
-        <div class="panel-body">
-            <div class="avatar-upload-zone">
-                <div class="preview-circle">
-                    <img src="" id="sidebarAvatarPreview" alt="Profile">
-                </div>
-                <input type="file" id="avatarInput" hidden accept="image/*">
-                <label for="avatarInput" class="upload-btn">החלף תמונה <i class="fas fa-camera"></i></label>
+    <div id="adminPanel" class="fixed inset-0 bg-black/90 z-[2000] hidden p-10 overflow-y-auto">
+        <div class="max-w-2xl mx-auto glass-panel p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">הוספת משחק חדש</h2>
+                <button onclick="hideAdmin()" class="text-red-400 text-xl font-bold">X</button>
             </div>
-            
-            <div class="input-group">
-                <label>שם מלא</label>
-                <input type="text" id="userNameInput" placeholder="הכנס שם (2-12 תווים)" maxlength="12">
-            </div>
-            
-            <div class="input-group">
-                <label>אימייל רשום</label>
-                <input type="email" id="userEmailInput" readonly>
-            </div>
-
-            <div class="status-card">
-                <p>סטטוס מנוי: <strong id="tierStatus">FREE</strong></p>
-                <div class="premium-benefits">
-                    <span id="tierIcon">🔓</span>
-                    <span id="tierBenefitDesc">גישה מוגבלת עם פרסומות</span>
-                </div>
-            </div>
-
-            <button class="action-btn save" id="saveProfileBtn">שמור נתונים</button>
-            <button class="action-btn logout" id="logoutBtn">התנתק מהמערכת</button>
-        </div>
-    </aside>
-
-    <div class="modal-overlay" id="mainModal">
-        <div class="modal-window" id="modalWindow">
-            <div class="modal-header">
-                <h3 id="modalTitle">פעולה נדרשת</h3>
-                <span class="modal-close" id="closeModalBtn">&times;</span>
-            </div>
-            <div class="modal-content" id="modalBody">
-                </div>
-        </div>
-    </div>
-
-    <div class="loader-overlay" id="loadingScreen">
-        <div class="loader-box">
-            <div class="ad-container">
-                <div class="ad-tag">פרסומת GOOFI</div>
-                <h4>רוצה לדלג על ההמתנה?</h4>
-                <p>מנויי GOLD ו-DIAMOND נהנים מגישה מיידית לכל הכלים ללא המתנה ופרסומות!</p>
-                <div class="ad-visual">
-                    <span class="coin-anim">🪙</span>
-                    <span class="gold-anim">🧈</span>
-                    <span class="diamond-anim">💎</span>
-                </div>
-            </div>
-            <div class="timer-display">
-                <svg class="progress-ring" width="120" height="120">
-                    <circle class="progress-ring__circle" stroke="#00f2ff" stroke-width="6" fill="transparent" r="52" cx="60" cy="60"/>
-                </svg>
-                <div class="time-left" id="timeLeftNum">20</div>
+            <div class="space-y-4">
+                <input type="text" id="newGameTitle" placeholder="שם המשחק" class="w-full p-3">
+                <input type="text" id="newGameDesc" maxlength="25" placeholder="תיאור קצר (עד 25 תווים)" class="w-full p-3">
+                <textarea id="newGameCode" rows="10" placeholder="הדבק כאן את קוד ה-HTML/JS של המשחק" class="w-full p-3 font-mono text-sm"></textarea>
+                <button onclick="saveNewGame()" class="btn-sus w-full py-4 rounded-xl text-xl font-bold">פרסם משחק</button>
             </div>
         </div>
     </div>
 
-    <footer class="system-footer">
-        <div class="footer-content">
-            <p>Powered by <span class="shimon-name">Shimon</span> <span class="live-status-dot" id="footerDot"></span></p>
+    <div id="gameOverlay">
+        <div class="h-[60px] flex items-center justify-between px-6 bg-white/5">
+            <h2 id="currentPlayingTitle" class="text-xl">שם המשחק</h2>
+            <button onclick="closeGame()" class="text-white text-3xl">&times;</button>
         </div>
-    </footer>
+        <div class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
+            <div class="flex-[3] glass-panel overflow-hidden relative">
+                <iframe id="gameIframe" class="w-full h-full border-none"></iframe>
+            </div>
+            <div class="flex-1 glass-panel p-6 flex flex-col gap-4 overflow-y-auto">
+                <h3 class="text-lg font-bold border-b border-white/10 pb-2">דרג והגב</h3>
+                <div class="flex gap-2 text-2xl justify-center" id="starContainer">
+                    <span class="star-rating" data-v="1">★</span>
+                    <span class="star-rating" data-v="2">★</span>
+                    <span class="star-rating" data-v="3">★</span>
+                    <span class="star-rating" data-v="4">★</span>
+                    <span class="star-rating" data-v="5">★</span>
+                </div>
+                <textarea id="commentInput" placeholder="מה דעתך על המשחק?" class="w-full p-2 text-sm" rows="3"></textarea>
+                <button onclick="submitReview()" class="btn-sus py-2 rounded-lg">שלח תגובה</button>
+                <div id="reviewsList" class="mt-4 space-y-3">
+                    </div>
+            </div>
+        </div>
+    </div>
 
-    <script src="script.js"></script>
+    <div id="loginModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[3000]">
+        <div class="glass-panel p-8 w-[350px] text-center">
+            <h2 class="text-2xl mb-6">כניסת משתמש</h2>
+            <input type="text" id="username" placeholder="שם משתמש" class="w-full mb-4 p-2 text-center">
+            <input type="password" id="password" placeholder="סיסמה" class="w-full mb-6 p-2 text-center">
+            <button onclick="handleLogin()" class="btn-sus w-full py-3 rounded-lg">התחבר / הירשם</button>
+            <p class="text-xs mt-4 text-white/50">טיפ: שם משתמש admin נותן גישת ניהול</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
