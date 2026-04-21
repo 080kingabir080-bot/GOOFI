@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUS Games Hub | Professional Portal</title>
+    <title>PRO-PLAY | Premium Gaming Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e94560; --secondary: #0f3460; --accent: #00d2ff; }
+        :root { --primary: #e94560; --secondary: #0f3460; --accent: #00d2ff; --premium: #ffd700; }
         
         body, html {
             margin: 0; padding: 0; width: 100vw; height: 100vh;
@@ -15,11 +15,14 @@
             background: #050505; color: white;
         }
 
-        /* רקע דינמי */
+        /* רקע דינמי משתנה לפרימיום */
         .bg-animate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #050505 100%);
-            z-index: -1;
+            z-index: -1; transition: 1s;
+        }
+        body.is-premium .bg-animate {
+            background: radial-gradient(circle at 50% 50%, #2e2400 0%, #050505 100%);
         }
 
         .glass {
@@ -29,149 +32,94 @@
             border-radius: 24px;
         }
 
-        /* מפלצת ואנימציית עיניים */
-        .monster-box {
-            position: absolute; bottom: -20px; right: -20px;
-            width: 120px; height: 120px; z-index: 10;
+        /* כפתור רכישה בצורת מתנה */
+        .gift-btn {
+            position: relative;
+            background: #e94560;
+            padding: 20px 40px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            clip-path: polygon(0% 15%, 15% 15%, 15% 0%, 85% 0%, 85% 15%, 100% 15%, 100% 85%, 85% 85%, 85% 100%, 15% 100%, 15% 85%, 0% 85%);
+            cursor: pointer;
+            transition: 0.3s;
+            overflow: hidden;
         }
-        .monster-body {
-            width: 100px; height: 100px; border-radius: 40% 40% 20% 20%;
-            position: relative; animation: float 3s ease-in-out infinite;
+        /* הסרט של המתנה */
+        .gift-btn::before { /* סרט אופקי */
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 10px;
+            background: #ffffff; transform: translateY(-50%); opacity: 0.8;
         }
-        .eye {
-            position: absolute; background: white; width: 25px; height: 25px;
-            border-radius: 50%; top: 25px;
+        .gift-btn::after { /* סרט אנכי */
+            content: ''; position: absolute; top: 0; left: 30%; width: 10px; height: 100%;
+            background: #ffffff; opacity: 0.8;
         }
-        .pupil {
-            position: absolute; background: black; width: 10px; height: 10px;
-            border-radius: 50%; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            animation: lookAround 8s infinite;
-        }
+        .gift-btn:hover { transform: scale(1.05) rotate(-2deg); box-shadow: 0 0 20px #e94560; }
 
-        @keyframes lookAround {
-            0%, 10%, 100% { transform: translate(-50%, -50%); }
-            15%, 25% { transform: translate(-80%, -20%); }
-            35%, 45% { transform: translate(20%, -60%); }
-            55%, 65% { transform: translate(-20%, 30%); }
-            75%, 85% { transform: translate(40%, 10%); }
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(2deg); }
-        }
+        /* כרטיס פרימיום */
+        .premium-border { border: 2px solid var(--premium) !important; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .premium-text { background: linear-gradient(to left, #ffd700, #ffae00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
 
-        /* הסתרת אלמנטים */
+        /* דפים */
         .page { display: none; height: 100vh; width: 100vw; animation: fadeIn 0.5s ease; }
         .page.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .game-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px; padding: 20px; height: calc(100vh - 100px); overflow-y: auto;
+        /* לואדר אימות */
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #ffd700;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; display: none;
         }
-        .game-grid::-webkit-scrollbar { display: none; }
-
-        .game-card {
-            aspect-ratio: 1/1; border-radius: 20px; cursor: pointer;
-            transition: 0.3s; position: relative; overflow: hidden;
-        }
-        .game-card:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--accent); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="bg-animate"></div>
 
     <section id="homePage" class="page active flex-col">
-        <header class="h-20 flex items-center justify-between px-8 glass m-4">
-            <h1 class="text-3xl font-bold text-cyan-400 italic">SUS<span class="text-white">GAMES</span></h1>
+        <header class="h-20 flex items-center justify-between px-8 glass m-4" id="mainHeader">
+            <h1 class="text-3xl font-bold text-cyan-400 italic">PRO-<span class="text-white">PLAY</span></h1>
             <div id="navButtons" class="flex gap-4">
                 <button onclick="nav('loginPage')" class="px-5 py-2 border border-white/20 rounded-full hover:bg-white/10">התחברות</button>
                 <button onclick="nav('registerPage')" class="px-5 py-2 bg-cyan-500 rounded-full font-bold hover:bg-cyan-400">הירשם חינם</button>
             </div>
         </header>
-        <div id="gameGrid" class="game-grid">
+        <div id="gameGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 p-8 overflow-y-auto">
             </div>
     </section>
 
-    <section id="loginPage" class="page items-center justify-center">
-        <div class="glass p-10 w-[400px] relative">
-            <h2 class="text-3xl font-bold mb-6 text-center">ברוך הבא</h2>
-            <input type="text" id="loginUser" placeholder="שם משתמש" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4 outline-none focus:border-cyan-400">
-            <input type="password" id="loginPass" placeholder="סיסמה" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-6 outline-none focus:border-cyan-400">
-            <button onclick="auth('login')" class="w-full py-4 bg-cyan-600 rounded-xl font-bold text-lg hover:bg-cyan-500 transition">כניסה למערכת</button>
-            <p class="text-center mt-4 text-sm text-white/50 cursor-pointer" onclick="nav('registerPage')">עוד לא נרשמת? צור חשבון</p>
+    <section id="premiumPage" class="page items-center justify-center">
+        <div class="glass p-10 w-[500px] text-center border-2 border-yellow-500/30">
+            <h2 class="text-4xl font-black mb-2 premium-text">Upgrade to PREMIUM</h2>
+            <p class="text-white/60 mb-8">הפוך למקצוען ותהנה מיתרונות בלעדיים</p>
             
-            <div class="monster-box">
-                <div class="monster-body bg-blue-500">
-                    <div class="eye" style="left: 20px;"><div class="pupil"></div></div>
-                    <div class="eye" style="right: 20px;"><div class="pupil"></div></div>
+            <div class="grid grid-cols-2 gap-4 mb-10 text-right">
+                <div class="bg-white/5 p-3 rounded-xl border border-white/10">⭐ גישה למשחקי VIP</div>
+                <div class="bg-white/5 p-3 rounded-xl border border-white/10">🚀 ללא פרסומות לנצח</div>
+                <div class="bg-white/5 p-3 rounded-xl border border-white/10">💎 תג PREMIUM מוזהב</div>
+                <div class="bg-white/5 p-3 rounded-xl border border-white/10">🎧 איכות סאונד HQ</div>
+            </div>
+
+            <div id="paymentForm" class="space-y-4">
+                <input type="text" id="payUser" placeholder="שם משתמש" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl outline-none">
+                <input type="email" id="payEmail" placeholder="אימייל" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl outline-none">
+                <input type="password" id="payPass" placeholder="סיסמה לאימות" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl outline-none">
+                
+                <div class="flex flex-col items-center gap-4 pt-4">
+                    <button id="buyGiftBtn" onclick="processPurchase()" class="gift-btn">רכוש מנוי עכשיו</button>
+                    <div id="purchaseLoader" class="loader"></div>
                 </div>
+            </div>
+
+            <div id="successMessage" class="hidden animate-bounce">
+                <div class="text-6xl mb-4">🏆</div>
+                <h3 class="text-2xl font-bold mb-2">הרכישה בוצעה בהצלחה!</h3>
+                <p class="mb-6">תודה שהצטרפת לקהילת הפרימיום שלנו.</p>
+                <button onclick="activatePremium()" class="w-full py-4 bg-yellow-500 text-black font-black rounded-xl">הפעל מנוי פרימיום</button>
             </div>
         </div>
     </section>
-
-    <section id="registerPage" class="page items-center justify-center">
-        <div class="glass p-10 w-[400px] relative">
-            <h2 class="text-3xl font-bold mb-6 text-center">חשבון חדש</h2>
-            <input type="text" id="regUser" placeholder="שם משתמש חדש" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4 outline-none focus:border-red-400">
-            <input type="password" id="regPass" placeholder="סיסמה" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-6 outline-none focus:border-red-400">
-            <button onclick="auth('register')" class="w-full py-4 bg-red-600 rounded-xl font-bold text-lg hover:bg-red-500 transition">הרשמה מהירה</button>
-            <p class="text-center mt-4 text-sm text-white/50 cursor-pointer" onclick="nav('loginPage')">כבר יש לך חשבון? התחבר</p>
-
-            <div class="monster-box">
-                <div class="monster-body bg-red-500">
-                    <div class="eye" style="left: 20px;"><div class="pupil"></div></div>
-                    <div class="eye" style="right: 20px;"><div class="pupil"></div></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="adminPage" class="page flex-col p-8">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-l from-cyan-400 to-purple-500">ADMIN CONTROL</h2>
-            <button onclick="nav('homePage')" class="px-6 py-2 border border-red-500 text-red-500 rounded-lg">יציאה מהפאנל</button>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="glass p-8">
-                <h3 class="text-xl mb-4">הוספת משחק חדש</h3>
-                <input type="text" id="admTitle" placeholder="שם המשחק" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4">
-                <input type="text" id="admDesc" maxlength="25" placeholder="תיאור קצר (עד 25 תווים)" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4">
-                <textarea id="admCode" rows="8" placeholder="הדבק כאן קוד HTML/JS מלא" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl mb-4 font-mono"></textarea>
-                <button onclick="adminAddGame()" class="w-full py-3 bg-green-600 rounded-xl font-bold">פרסם עכשיו</button>
-            </div>
-            <div class="glass p-8">
-                <h3 class="text-xl mb-4">ניהול קטלוג</h3>
-                <div id="adminList" class="space-y-3 max-h-[400px] overflow-y-auto">
-                    </div>
-            </div>
-        </div>
-    </section>
-
-    <div id="playerOverlay" class="fixed inset-0 bg-black/95 z-[5000] hidden flex-col">
-        <div class="h-16 flex items-center justify-between px-6 bg-white/5">
-            <span id="playerTitle" class="text-xl font-bold"></span>
-            <button onclick="closePlayer()" class="text-3xl">&times;</button>
-        </div>
-        <div class="flex-1 flex p-4 gap-4 overflow-hidden">
-            <iframe id="gameFrame" class="flex-[3] glass border-none rounded-3xl"></iframe>
-            <div class="flex-1 glass p-6 overflow-y-auto scroll-area">
-                <h4 class="font-bold border-b border-white/10 pb-2 mb-4">דירוג וביקורות</h4>
-                <div id="starInput" class="flex gap-2 text-3xl mb-4 justify-center">
-                    <span class="cursor-pointer text-gray-600" data-v="1">★</span>
-                    <span class="cursor-pointer text-gray-600" data-v="2">★</span>
-                    <span class="cursor-pointer text-gray-600" data-v="3">★</span>
-                    <span class="cursor-pointer text-gray-600" data-v="4">★</span>
-                    <span class="cursor-pointer text-gray-600" data-v="5">★</span>
-                </div>
-                <textarea id="revText" class="w-full bg-white/5 p-3 rounded-lg text-sm mb-2" placeholder="כתוב ביקורת..."></textarea>
-                <button onclick="postReview()" class="w-full py-2 bg-cyan-600 rounded-lg">שלח</button>
-                <div id="revList" class="mt-6 space-y-4"></div>
-            </div>
-        </div>
-    </div>
 
     <script src="app.js"></script>
 </body>
