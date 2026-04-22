@@ -10,59 +10,54 @@
         :root { --primary: #e94560; --premium: #ffd700; --cyan: #00d2ff; --bg: #050505; }
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; font-family: 'Assistant', sans-serif; background: var(--bg); color: white; }
-        .site-bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, #16213e 0%, #050505 100%); }
+        
+        /* שכבת האנימציה המרכזית - BCC */
+        #bcc-global-layer { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; background-repeat: repeat; background-position: center; }
+        
+        .site-bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(circle at 50% 50%, #16213e 0%, #050505 100%); }
         .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         
-        /* כפתור פרימיום משודרג */
-        .btn-premium-glow {
-            background: linear-gradient(45deg, #ffd700, #ffa500);
-            color: black;
-            font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            animation: pulse-gold 2s infinite;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-premium-glow:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(255, 215, 0, 0.7); cursor: pointer; }
+        /* אנימציות BCC */
+        @keyframes bccTwinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .bcc-space { background-image: radial-gradient(2px 2px at 20px 30px, #ffffff, transparent), radial-gradient(2px 2px at 100px 150px, #ffffff, transparent); background-size: 200px 200px; animation: bccTwinkle 4s infinite !important; }
         
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
-            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); }
-            100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
-        }
+        @keyframes bccGrid { from { background-position: 0 0; } to { background-position: 0 50px; } }
+        .bcc-grid { background-image: linear-gradient(rgba(0, 242, 255, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.15) 1px, transparent 1px); background-size: 50px 50px; animation: bccGrid 2s linear infinite !important; }
+        
+        @keyframes bccMatrix { from { background-position: 0 -1000px; } to { background-position: 0 0; } }
+        .bcc-matrix { background: linear-gradient(180deg, rgba(0,255,70,0.2) 0%, transparent 100%); background-size: 100% 1000px; animation: bccMatrix 8s linear infinite !important; }
+        
+        @keyframes bccEmoji { from { background-position: 0 0; } to { background-position: 500px 500px; } }
+        .bcc-emojis { background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='50' font-size='25'%3E🔥%3C/text%3E%3Ctext x='60' y='80' font-size='25'%3E💎%3C/text%3E%3C/svg%3E"); animation: bccEmoji 15s linear infinite !important; }
 
+        /* שאר הסטייל של האתר */
+        .btn-premium-glow { background: linear-gradient(45deg, #ffd700, #ffa500); color: black; font-weight: 900; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); animation: pulse-gold 2s infinite; border: none; transition: 0.3s; }
+        .btn-premium-glow:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(255, 215, 0, 0.7); cursor: pointer; }
+        @keyframes pulse-gold { 0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); } 50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); } 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); } }
         .game-card { aspect-ratio: 1/1.1; position: relative; border-radius: 30px; background: #0a0a0a; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.5s; cursor: pointer; }
         .card-inner { position: absolute; inset: 2px; background: #0d0d0d; border-radius: 28px; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .game-card:hover { transform: translateY(-10px); border-color: var(--cyan); }
-
         .admin-icon { width: 110px; height: 110px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); text-align: center; }
         .admin-icon:hover { background: rgba(0, 210, 255, 0.1); border-color: var(--cyan); transform: scale(1.1); }
         .admin-window { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 700px; max-height: 85vh; z-index: 1000; display: none; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; }
-
         .page { display: none; height: 100vh; width: 100vw; flex-direction: column; }
         .page.active { display: flex; }
-        
         #gameOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; }
         iframe { width: 100%; height: 100%; border: none; }
-        
         .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--cyan); border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .premium-badge { background: linear-gradient(45deg, #ffd700, #ff8c00); color: black; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 900; }
         .locked-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 28px; }
     </style>
 </head>
 <body>
+    <div id="bcc-global-layer"></div>
     <div class="site-bg"></div>
 
     <section id="homePage" class="page active">
         <header class="h-24 flex items-center justify-between px-10 glass m-6 rounded-[35px]">
             <h1 class="text-3xl font-black italic tracking-tighter uppercase">PRO-<span style="color:var(--cyan)">PLAY</span></h1>
-            <div id="authArea" class="flex gap-4">
-                <button onclick="nav('loginPage')" class="px-6 py-2 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition">כניסה</button>
-                <button onclick="nav('registerPage')" class="px-6 py-2 bg-white text-black rounded-xl font-black hover:bg-gray-200 transition">הצטרפות</button>
-            </div>
+            <div id="authArea" class="flex gap-4"></div>
         </header>
         <main id="gameGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8 p-10 overflow-y-auto flex-1 content-start"></main>
     </section>
@@ -72,12 +67,8 @@
             <div class="text-6xl mb-6">💎</div>
             <h2 class="text-4xl font-black mb-2 text-amber-500 italic uppercase">Ultimate Pro</h2>
             <p class="text-gray-400 text-sm mb-10 leading-relaxed uppercase tracking-widest">Unlock All Content • No Ads • Golden Glow</p>
-            
             <input type="email" id="p_email" placeholder="הכנס אימייל" class="w-full bg-white/5 p-5 rounded-2xl border border-white/10 text-center outline-none focus:border-amber-500 mb-6 transition">
-
-            <button onclick="processPremium()" class="w-full py-6 btn-premium-glow rounded-[25px] text-lg shadow-2xl uppercase">
-                שדרג עכשיו - ₪29
-            </button>
+            <button onclick="processPremium()" class="w-full py-6 btn-premium-glow rounded-[25px] text-lg shadow-2xl uppercase">שדרג עכשיו - ₪29</button>
             <button onclick="nav('homePage')" class="mt-6 text-gray-500 text-xs font-bold uppercase hover:text-white transition">ביטול</button>
         </div>
     </section>
@@ -189,25 +180,19 @@
             const p = document.getElementById('l_pass').value;
             if(u === 'admin' && p === 'admin') return nav('adminPage');
             const found = users.find(x => x.name === u && x.pass === p);
-            if(found) { 
-                currentUser = found; 
-                sessionStorage.setItem('pp_active', JSON.stringify(found)); 
-                nav('homePage'); 
-            } else alert("פרטים שגויים");
+            if(found) { currentUser = found; sessionStorage.setItem('pp_active', JSON.stringify(found)); nav('homePage'); } 
+            else alert("פרטים שגויים");
         }
 
         function processPremium() {
             const email = document.getElementById('p_email').value;
             if(!email.includes('@')) return alert("מייל לא תקין");
             if(!currentUser) return nav('loginPage');
-            
             currentUser.isPrem = true;
             const idx = users.findIndex(u => u.name === currentUser.name);
             if(idx !== -1) users[idx].isPrem = true;
-            
             localStorage.setItem('pp_users_v1', JSON.stringify(users));
             sessionStorage.setItem('pp_active', JSON.stringify(currentUser));
-            
             alert("המנוי שודרג! ברוך הבא ל-ULTIMATE PRO 💎");
             nav('homePage');
         }
@@ -238,16 +223,12 @@
             const grid = document.getElementById('gameGrid');
             grid.innerHTML = db.filter(i => i.type === 'game').map(g => {
                 const isLocked = g.isPremium && (!currentUser || !currentUser.isPrem);
-                const visual = (g.image && g.image.length > 100) 
-                    ? `<img src="${g.image}" class="w-16 h-16 rounded-2xl object-cover mb-4">`
-                    : `<div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl mb-4">🎮</div>`;
-
                 return `
                     <div class="game-card ${g.isPremium ? 'border-amber-500/20' : ''}" onclick="tryRun(${g.id})">
                         <div class="card-inner">
                             ${g.isPremium ? `<span class="absolute top-3 right-3 premium-badge">PREMIUM</span>` : ''}
                             ${isLocked ? `<div class="locked-overlay"><span class="text-2xl mb-1">🔒</span><span class="text-[8px] font-black opacity-50 uppercase tracking-widest">Upgrade</span></div>` : ''}
-                            ${visual}
+                            <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl mb-4">🎮</div>
                             <span class="text-[10px] font-bold uppercase opacity-60 tracking-widest text-center">${g.title}</span>
                         </div>
                     </div>
@@ -295,11 +276,7 @@
         }
 
         function deleteItem(id) {
-            if(confirm("למחוק לצמיתות?")) {
-                db = db.filter(i => i.id !== id);
-                localStorage.setItem('pp_ultra_v1', JSON.stringify(db));
-                renderAdmin();
-            }
+            if(confirm("למחוק לצמיתות?")) { db = db.filter(i => i.id !== id); localStorage.setItem('pp_ultra_v1', JSON.stringify(db)); renderAdmin(); }
         }
 
         function tryRun(id) {
@@ -314,97 +291,35 @@
             document.getElementById('ovTitle').innerText = item.title;
             const frame = document.getElementById('gameFrame');
             const loader = document.getElementById('gameLoader');
-            
             loader.style.display = 'flex';
             frame.classList.add('hidden');
-            
-            if(item.url) frame.src = item.url;
-            else {
-                const blob = new Blob([item.code], {type: 'text/html'});
-                frame.src = URL.createObjectURL(blob);
-            }
+            const blob = new Blob([item.code], {type: 'text/html'});
+            frame.src = URL.createObjectURL(blob);
             document.getElementById('gameOverlay').style.display = 'flex';
         }
 
         function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; document.getElementById('gameFrame').src = ''; }
 
+        /* BCC SYNC ENGINE - החלק ששולט בשינויי הרקע */
+        (function() {
+            const layer = document.getElementById('bcc-global-layer');
+            const STORAGE_KEY = 'bcc_force_config';
+            function applyNow() {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const config = JSON.parse(raw);
+                document.body.style.setProperty('background-color', config.bg, 'important');
+                layer.className = ''; 
+                if (config.animId === 'space') layer.classList.add('bcc-space');
+                if (config.animId === 'grid') layer.classList.add('bcc-grid');
+                if (config.animId === 'matrix') layer.classList.add('bcc-matrix');
+                if (config.animId === 'emojis') layer.classList.add('bcc-emojis');
+            }
+            applyNow();
+            window.addEventListener('storage', (e) => { if (e.key === STORAGE_KEY) applyNow(); });
+        })();
+
         window.onload = () => { renderHome(); };
     </script>
-<style>
-    #bcc-layer { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-    
-    /* פקודות האנימציה שיופעלו באתר */
-    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .stars-anim { 
-        background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), 
-                          radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)); 
-        background-size: 200px 200px; animation: twinkle 3s infinite alternate; 
-    }
-    @keyframes emojiScroll { from { background-position: 0 0; } to { background-position: 500px 500px; } }
-    .emoji-anim { 
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='50' font-size='20'%3E🔥%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E💎%3C/text%3E%3C/svg%3E"); 
-        animation: emojiScroll 20s linear infinite; 
-    }
-</style>
-
-<div id="bcc-layer"></div>
-
-<script>
-    function applyBCC() {
-        const data = JSON.parse(localStorage.getItem('site_background_settings'));
-        if (data) {
-            document.body.style.backgroundColor = data.bg;
-            document.getElementById('bcc-layer').className = data.anim;
-        }
-    }
-    applyBCC();
-    window.addEventListener('storage', (e) => { if(e.key === 'site_background_settings') applyBCC(); });
-</script>
-<div id="bcc-global-layer" style="position:fixed; inset:0; z-index:-9999; pointer-events:none;"></div>
-
-<style id="bcc-core-styles">
-    body.bcc-active { transition: background-color 0.5s ease !important; }
-    @keyframes bccTwinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .bcc-space { 
-        background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 100px 150px, #fff, transparent);
-        background-size: 200px 200px; animation: bccTwinkle 4s infinite; 
-    }
-    @keyframes bccGrid { from { background-position: 0 0; } to { background-position: 0 50px; } }
-    .bcc-grid { 
-        background-image: linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
-        background-size: 50px 50px; animation: bccGrid 2s linear infinite;
-    }
-    @keyframes bccMatrix { from { background-position: 0 0; } to { background-position: 0 1000px; } }
-    .bcc-matrix {
-        background: linear-gradient(180deg, rgba(0,255,0,0.1) 0%, transparent 100%);
-        background-size: 100% 1000px; animation: bccMatrix 10s linear infinite;
-    }
-    @keyframes bccEmoji { from { background-position: 0 0; } to { background-position: 500px 500px; } }
-    .bcc-emojis {
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='50' font-size='20'%3E🔥%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E💎%3C/text%3E%3C/svg%3E");
-        animation: bccEmoji 15s linear infinite; opacity: 0.4;
-    }
-</style>
-
-<script>
-    (function() {
-        const layer = document.getElementById('bcc-global-layer');
-        const STORAGE_KEY = 'bcc_force_config';
-        function applyNow() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return;
-            const config = JSON.parse(raw);
-            document.body.style.setProperty('background-color', config.bg, 'important');
-            document.body.classList.add('bcc-active');
-            layer.className = '';
-            if (config.animId === 'space') layer.classList.add('bcc-space');
-            if (config.animId === 'grid') layer.classList.add('bcc-grid');
-            if (config.animId === 'matrix') layer.classList.add('bcc-matrix');
-            if (config.animId === 'emojis') layer.classList.add('bcc-emojis');
-        }
-        applyNow();
-        window.addEventListener('storage', (e) => { if (e.key === STORAGE_KEY) applyNow(); });
-    })();
-</script>
 </body>
 </html>
