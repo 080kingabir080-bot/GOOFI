@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROOT TERMINAL v2.0</title>
+    <title>ROOT OS | SECURE ACCESS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&family=Inter:wght@200;400;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --neon: #00f2ff;
-            --neon-glow: rgba(0, 242, 255, 0.3);
             --danger: #ff0055;
-            --gold: #ffac00;
             --bg: #050508;
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
@@ -19,368 +17,274 @@
 
         body {
             background-color: var(--bg);
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.03) 0%, transparent 50%),
-                linear-gradient(rgba(18, 18, 24, 0.8) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(18, 18, 24, 0.8) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.02) 0%, transparent 50%);
             color: #f0f0f0;
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        .font-mono { font-family: 'Fira Code', monospace; }
-
-        /* כרטיסיות עם אפקט זכוכית */
         .glass-card {
             background: var(--glass);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .glass-card:hover {
-            border-color: var(--neon);
-            box-shadow: 0 0 30px var(--neon-glow);
-            transform: translateY(-5px);
+        .admin-only { display: none; }
+        
+        .login-overlay {
+            position: fixed; inset: 0; background: var(--bg); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        /* שורת חיפוש עתידנית */
-        .search-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--neon);
-            box-shadow: 0 0 20px var(--neon-glow);
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid var(--glass-border) !important;
+            color: white !important;
             outline: none;
+            transition: 0.3s;
         }
 
-        /* כפתור הוספה צף */
-        .fab {
-            position: fixed;
-            bottom: 40px;
-            left: 40px;
-            width: 64px;
-            height: 64px;
+        input:focus { border-color: var(--neon) !important; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+
+        .btn-neon {
             background: var(--neon);
-            color: #000;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-            box-shadow: 0 10px 40px var(--neon-glow);
-            cursor: pointer;
-            z-index: 50;
-            transition: all 0.3s ease;
-        }
-
-        .fab:hover {
-            transform: scale(1.1) rotate(90deg);
-            background: #fff;
-        }
-
-        /* עורך קוד (Modal) */
-        #masterEditor {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            z-index: 100;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .editor-container {
-            max-width: 900px;
-            margin: auto;
-            background: #0d0d12;
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            overflow: hidden;
-        }
-
-        .code-screen {
-            background: #050507;
-            font-family: 'Fira Code', monospace;
-            color: #00ff9d;
-            border: 1px solid #1a1a25;
-            resize: none;
-        }
-
-        /* נוטיפיקציות */
-        .toast {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 12px;
-            background: var(--neon);
-            color: #000;
+            color: black;
             font-weight: 900;
-            letter-spacing: 1px;
-            display: none;
-            z-index: 1000;
-            box-shadow: 0 0 30px var(--neon-glow);
+            transition: 0.3s;
         }
 
-        /* אנימציית דופק */
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-        /* גלילה */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--neon); }
+        .btn-neon:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon); }
+        
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body class="p-4 md:p-10">
 
-    <div id="toast" class="toast uppercase">System Notification</div>
+    <div id="loginPage" class="login-overlay">
+        <div class="glass-card p-10 rounded-3xl w-full max-w-md border-t-4 border-t-[var(--neon)]">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black italic tracking-tighter">GATEWAY <span class="text-[var(--neon)]">LOGIN</span></h2>
+                <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-2">Restricted Access Area</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold opacity-50 block mb-1">IDENTIFIER</label>
+                    <input type="text" id="loginUser" class="w-full p-4 rounded-xl" placeholder="ADMIN">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold opacity-50 block mb-1">ENCRYPTION KEY</label>
+                    <input type="password" id="loginPass" class="w-full p-4 rounded-xl" placeholder="••••••••">
+                </div>
+                <button onclick="handleLogin()" class="btn-neon w-full py-4 rounded-xl mt-4 uppercase">Initialize Session</button>
+                <button onclick="bypassToGuest()" class="w-full py-2 text-xs opacity-40 hover:opacity-100 transition">Enter as Guest (View Only)</button>
+            </div>
+            <p id="loginError" class="text-[var(--danger)] text-xs mt-4 text-center hidden">INVALID CREDENTIALS</p>
+        </div>
+    </div>
 
-    <header class="max-w-7xl mx-auto mb-12">
-        <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+    <div id="mainApp" class="hidden">
+        <header class="max-w-7xl mx-auto mb-10 flex justify-between items-center">
             <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="w-3 h-3 bg-[var(--neon)] rounded-full pulse"></span>
-                    <span class="font-mono text-[10px] tracking-[0.3em] text-[var(--neon)]">INTERNAL SECURE STORAGE</span>
-                </div>
-                <h1 class="text-6xl font-black italic tracking-tighter">
-                    ROOT <span class="text-[var(--neon)]" style="text-shadow: 0 0 20px var(--neon-glow)">DATABASE</span>
-                </h1>
-            </div>
-            <div class="flex gap-4">
-                <div class="glass-card px-6 py-3 rounded-2xl">
-                    <span class="block text-[9px] text-gray-500 font-bold uppercase">Total Objects</span>
-                    <span id="stat-total" class="text-2xl font-black font-mono">00</span>
+                <h1 class="text-4xl font-black italic tracking-tighter">ROOT <span class="text-[var(--neon)]">OS</span></h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span id="roleDot" class="status-dot"></span>
+                    <span id="roleText" class="text-[10px] font-mono uppercase"></span>
                 </div>
             </div>
-        </div>
-    </header>
+            <button onclick="handleLogout()" class="px-4 py-2 glass-card rounded-lg text-xs hover:text-[var(--danger)] transition">LOGOUT_SYSTEM</button>
+        </header>
 
-    <main class="max-w-7xl mx-auto">
-        <div class="relative mb-12">
-            <input type="text" id="m_search" oninput="m_refresh()" 
-                   placeholder="חפש בזיכרון המערכת..." 
-                   class="search-input w-full p-6 pr-14 rounded-2xl text-xl font-light">
-            <svg class="absolute left-6 top-1/2 -translate-y-1/2 opacity-20" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <div class="max-w-7xl mx-auto mb-8">
+            <input type="text" id="m_search" oninput="m_refresh()" placeholder="חפש בזיכרון המערכת..." class="w-full p-5 rounded-2xl text-lg glass-card">
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
             <section>
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black italic text-[var(--gold)]">// GAMES_DB</h2>
-                    <span class="h-[1px] flex-1 mx-4 bg-gradient-to-l from-[var(--gold)] opacity-10"></span>
-                </div>
-                <div id="cat-games" class="space-y-4"></div>
+                <h2 class="text-sm font-black text-[var(--neon)] mb-4 font-mono">// DATABASE_GAMES</h2>
+                <div id="cat-games" class="space-y-3"></div>
             </section>
-
             <section>
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-black italic text-[var(--neon)]">// SYSTEM_TOOLS</h2>
-                    <span class="h-[1px] flex-1 mx-4 bg-gradient-to-l from-[var(--neon)] opacity-10"></span>
-                </div>
-                <div id="cat-tools" class="space-y-4"></div>
+                <h2 class="text-sm font-black text-[var(--neon)] mb-4 font-mono">// DATABASE_TOOLS</h2>
+                <div id="cat-tools" class="space-y-3"></div>
             </section>
         </div>
-    </main>
 
-    <div class="fab" onclick="m_open_new()">+</div>
+        <button id="addBtn" onclick="m_open_new()" class="admin-only fixed bottom-8 left-8 w-16 h-16 btn-neon rounded-2xl text-3xl shadow-2xl">+</button>
+    </div>
 
-    <div id="masterEditor">
-        <div class="editor-container glass-card h-full max-h-[85vh] flex flex-col">
-            <div class="p-8 border-b border-white/5 flex justify-between items-center">
-                <div>
-                    <h2 id="editor-title" class="text-2xl font-black italic">NEW_OBJECT</h2>
-                    <p id="editor-id" class="font-mono text-[10px] text-gray-500">ID: TEMPORARY_SESSION</p>
-                </div>
-                <button onclick="m_close()" class="w-12 h-12 rounded-full hover:bg-white/5 transition flex items-center justify-center text-3xl">&times;</button>
+    <div id="masterEditor" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[3000] hidden p-4 flex items-center justify-center">
+        <div class="glass-card w-full max-w-4xl rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <h2 class="font-black italic text-xl">OBJECT_RECONSTRUCTOR</h2>
+                <button onclick="m_close()" class="text-2xl opacity-50">&times;</button>
             </div>
-            
-            <div class="p-8 flex-1 overflow-y-auto space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="md:col-span-1">
-                        <label class="block text-[10px] font-black text-[var(--neon)] mb-2">OBJECT TYPE</label>
-                        <select id="m_type" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-[var(--neon)]">
-                            <option value="game" class="bg-[#0d0d12]">Game (SEC-01)</option>
-                            <option value="tool" class="bg-[#0d0d12]">Tool (SEC-02)</option>
-                        </select>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-[10px] font-black text-[var(--neon)] mb-2">IDENTIFIER / NAME</label>
-                        <input type="text" id="m_name" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-[var(--neon)]">
-                    </div>
+            <div class="p-6 overflow-y-auto space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="m_name" placeholder="Object Name" class="p-4 rounded-xl">
+                    <select id="m_type" class="p-4 rounded-xl">
+                        <option value="game">Game</option>
+                        <option value="tool">Tool</option>
+                    </select>
                 </div>
-
-                <div>
-                    <label class="block text-[10px] font-black text-[var(--neon)] mb-2">VISUAL ASSET (EMOJI / URL)</label>
-                    <input type="text" id="m_visual" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-[var(--neon)]">
-                </div>
-
-                <div class="flex-1 flex flex-col">
-                    <label class="block text-[10px] font-black text-[var(--neon)] mb-2">RAW SOURCE CODE</label>
-                    <textarea id="m_code" class="code-screen flex-1 min-h-[300px] w-full p-6 rounded-2xl outline-none" spellcheck="false"></textarea>
-                </div>
+                <input type="text" id="m_visual" placeholder="Visual (URL or Emoji)" class="w-full p-4 rounded-xl">
+                <textarea id="m_code" class="w-full h-64 p-6 rounded-xl font-mono text-sm text-green-400" placeholder="// Insert Source Code..."></textarea>
             </div>
-
-            <div class="p-8 border-t border-white/5 flex justify-between bg-black/20">
-                <button onclick="m_delete()" id="delBtn" class="px-6 py-4 rounded-xl text-[var(--danger)] font-bold hover:bg-[var(--danger)] hover:text-white transition">DELETE OBJECT</button>
-                <div class="flex gap-4">
-                    <button onclick="m_close()" class="px-8 py-4 font-bold opacity-40 hover:opacity-100 transition">ABORT</button>
-                    <button onclick="m_save()" class="px-10 py-4 bg-[var(--neon)] text-black font-black rounded-xl hover:shadow-[0_0_30px_var(--neon-glow)] transition uppercase tracking-tighter">Commit Changes</button>
+            <div class="p-6 border-t border-white/10 flex justify-between bg-white/5">
+                <button onclick="m_delete()" class="text-[var(--danger)] font-bold px-4">DELETE</button>
+                <div class="flex gap-3">
+                    <button onclick="m_close()" class="px-6 opacity-50">CANCEL</button>
+                    <button onclick="m_save()" class="btn-neon px-8 py-3 rounded-xl">DEPLOY CHANGES</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const DB_KEY = 'pp_ultra_v1';
-        let currentEditingId = null;
+        const DB_KEY = 'pp_ultra_v2';
+        let currentId = null;
+        let isAdmin = false;
 
-        // --- Logic Engine ---
+        // AUTH SYSTEM
+        function handleLogin() {
+            const user = document.getElementById('loginUser').value;
+            const pass = document.getElementById('loginPass').value;
+            const error = document.getElementById('loginError');
 
-        const getDB = () => JSON.parse(localStorage.getItem(DB_KEY)) || [];
-        const saveDB = (data) => localStorage.setItem(DB_KEY, JSON.stringify(data));
-
-        function notify(text) {
-            const t = document.getElementById('toast');
-            t.innerText = text;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
+            if(user === 'ADMIN' && pass === 'ADMIN1') {
+                isAdmin = true;
+                sessionStorage.setItem('root_auth', 'true');
+                startApp();
+            } else {
+                error.classList.remove('hidden');
+            }
         }
+
+        function bypassToGuest() {
+            isAdmin = false;
+            sessionStorage.setItem('root_auth', 'false');
+            startApp();
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('root_auth');
+            location.reload();
+        }
+
+        function startApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            const roleDot = document.getElementById('roleDot');
+            const roleText = document.getElementById('roleText');
+            
+            if(isAdmin) {
+                roleDot.style.backgroundColor = 'var(--neon)';
+                roleText.innerText = 'Administrator Access';
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+            } else {
+                roleDot.style.backgroundColor = '#555';
+                roleText.innerText = 'Guest Observer';
+            }
+            m_refresh();
+        }
+
+        // APP LOGIC
+        const getDB = () => JSON.parse(localStorage.getItem(DB_KEY)) || [];
+        const saveDB = (db) => localStorage.setItem(DB_KEY, JSON.stringify(db));
 
         function m_refresh() {
             const db = getDB();
             const query = document.getElementById('m_search').value.toLowerCase();
-            const containers = {
-                game: document.getElementById('cat-games'),
-                tool: document.getElementById('cat-tools')
-            };
-
-            containers.game.innerHTML = '';
-            containers.tool.innerHTML = '';
-
-            const filtered = db.filter(item => item.title.toLowerCase().includes(query));
+            const cats = { game: document.getElementById('cat-games'), tool: document.getElementById('cat-tools') };
             
-            filtered.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'glass-card p-4 rounded-2xl flex items-center justify-between group cursor-pointer';
-                card.style.animation = `fadeIn 0.4s ease forwards ${index * 0.05}s`;
-                card.onclick = () => m_open(item.id);
+            cats.game.innerHTML = ''; cats.tool.innerHTML = '';
 
-                const isImage = item.image && item.image.length > 10;
-                const visualHtml = isImage 
-                    ? `<img src="${item.image}" class="w-full h-full object-cover">`
-                    : `<span class="text-2xl">${item.emoji || '💾'}</span>`;
+            db.filter(x => x.title.toLowerCase().includes(query)).forEach(item => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-4 rounded-xl flex justify-between items-center group transition hover:border-[var(--neon)] cursor-pointer";
+                
+                // במידה ומנהל מחובר, לחיצה פותחת עריכה. במידה ולא - לחיצה יכולה להפעיל קוד (כאן רק הצגנו)
+                if(isAdmin) card.onclick = () => m_open(item.id);
+
+                const visual = item.visual && item.visual.startsWith('http') 
+                    ? `<img src="${item.visual}" class="w-full h-full object-cover">`
+                    : `<span class="text-xl">${item.visual || '💾'}</span>`;
 
                 card.innerHTML = `
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-xl bg-black border border-white/10 flex items-center justify-center overflow-hidden">
-                            ${visualHtml}
-                        </div>
+                        <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center overflow-hidden border border-white/5">${visual}</div>
                         <div>
-                            <h3 class="font-black text-sm uppercase tracking-wide group-hover:text-[var(--neon)] transition">${item.title}</h3>
-                            <p class="font-mono text-[9px] opacity-30 italic">${item.id}</p>
+                            <div class="text-sm font-bold uppercase tracking-tight">${item.title}</div>
+                            <div class="text-[9px] font-mono opacity-30 italic">${item.id}</div>
                         </div>
                     </div>
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-[var(--neon)] text-black">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-                    </div>
+                    ${isAdmin ? '<span class="text-[var(--neon)] opacity-0 group-hover:opacity-100 text-xs font-bold">EDIT_OBJ</span>' : ''}
                 `;
-
-                if (containers[item.type]) containers[item.type].appendChild(card);
+                cats[item.type].appendChild(card);
             });
-
-            document.getElementById('stat-total').innerText = filtered.length.toString().padStart(2, '0');
-            
-            // Empty State
-            if (filtered.length === 0) {
-                containers.game.innerHTML = containers.tool.innerHTML = '<div class="opacity-20 font-mono text-xs italic p-4 text-center">NO DATA FOUND IN THIS SECTOR</div>';
-            }
         }
 
         function m_open(id) {
+            if(!isAdmin) return;
             const item = getDB().find(x => x.id === id);
-            if (!item) return;
-
-            currentEditingId = id;
+            currentId = id;
             document.getElementById('m_name').value = item.title;
             document.getElementById('m_type').value = item.type;
-            document.getElementById('m_visual').value = item.type === 'game' ? (item.image || '') : (item.emoji || '');
-            document.getElementById('m_code').value = item.code || '';
-            
-            document.getElementById('editor-title').innerText = "EDITING // " + item.title.toUpperCase();
-            document.getElementById('editor-id').innerText = "ID: " + item.id;
-            document.getElementById('delBtn').style.display = 'block';
-            document.getElementById('masterEditor').style.display = 'flex';
+            document.getElementById('m_visual').value = item.visual;
+            document.getElementById('m_code').value = item.code;
+            document.getElementById('masterEditor').classList.remove('hidden');
         }
 
         function m_open_new() {
-            currentEditingId = null;
+            currentId = null;
             document.getElementById('m_name').value = '';
             document.getElementById('m_visual').value = '';
             document.getElementById('m_code').value = '';
-            document.getElementById('editor-title').innerText = "NEW_DATA_ENTRY";
-            document.getElementById('delBtn').style.display = 'none';
-            document.getElementById('masterEditor').style.display = 'flex';
+            document.getElementById('masterEditor').classList.remove('hidden');
         }
 
         function m_save() {
-            const title = document.getElementById('m_name').value;
-            const type = document.getElementById('m_type').value;
-            const visual = document.getElementById('m_visual').value;
-            const code = document.getElementById('m_code').value;
-
-            if (!title) { notify("ERROR: MISSING_IDENTIFIER"); return; }
-
             let db = getDB();
-            
-            if (currentEditingId) {
-                const idx = db.findIndex(x => x.id === currentEditingId);
-                db[idx] = { 
-                    ...db[idx], 
-                    title, type, code, 
-                    [type === 'game' ? 'image' : 'emoji']: visual 
-                };
+            const data = {
+                id: currentId || 'sys-' + Math.random().toString(36).substr(2, 7),
+                title: document.getElementById('m_name').value,
+                type: document.getElementById('m_type').value,
+                visual: document.getElementById('m_visual').value,
+                code: document.getElementById('m_code').value
+            };
+
+            if(currentId) {
+                const idx = db.findIndex(x => x.id === currentId);
+                db[idx] = data;
             } else {
-                db.push({
-                    id: 'obj-' + Math.random().toString(36).substr(2, 9),
-                    title, type, code,
-                    [type === 'game' ? 'image' : 'emoji']: visual
-                });
+                db.push(data);
             }
 
             saveDB(db);
             m_close();
             m_refresh();
-            notify("CORE_MEMORY_UPDATED");
         }
 
         function m_delete() {
-            if (!confirm("אתה עומד למחוק את המידע לצמיתות. להמשיך?")) return;
-            let db = getDB();
-            db = db.filter(x => x.id !== currentEditingId);
-            saveDB(db);
+            if(!confirm("PURGE DATA?")) return;
+            saveDB(getDB().filter(x => x.id !== currentId));
             m_close();
             m_refresh();
-            notify("DATA_PURGED");
         }
 
-        function m_close() {
-            document.getElementById('masterEditor').style.display = 'none';
-        }
+        function m_close() { document.getElementById('masterEditor').classList.add('hidden'); }
 
-        // Initialize
-        m_refresh();
+        // Auto-check session on load
+        window.onload = () => {
+            const auth = sessionStorage.getItem('root_auth');
+            if(auth === 'true') {
+                isAdmin = true;
+                startApp();
+            } else if(auth === 'false') {
+                isAdmin = false;
+                startApp();
+            }
+        };
     </script>
 </body>
 </html>
