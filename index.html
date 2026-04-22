@@ -174,25 +174,34 @@
         }
 
         function renderHome() {
-            const grid = document.getElementById('gameGrid');
-            const games = db.filter(i => i.type === 'game');
-            grid.innerHTML = games.map(g => `
-                <div class="game-card" onclick="runContent(${g.id})">
-                    <div class="card-inner">
-                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl mb-4">🎮</div>
-                        <span class="text-[10px] font-black uppercase opacity-60">${g.title}</span>
-                    </div>
-                </div>
-            `).join('');
+    const grid = document.getElementById('gameGrid');
+    const games = db.filter(i => i.type === 'game');
+    
+    grid.innerHTML = games.map(g => {
+        // המנגנון שבודק אם יש תמונה שהעלית או להציג אימוג'י ברירת מחדל
+        const visual = (g.image && g.image.length > 100) 
+            ? `<img src="${g.image}" class="w-16 h-16 rounded-2xl object-cover mb-4 shadow-[0_0_20px_rgba(0,210,255,0.2)]">`
+            : `<div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl mb-4">🎮</div>`;
 
-            const auth = document.getElementById('authArea');
-            if(currentUser) {
-                auth.innerHTML = `
-                    <span class="text-cyan-400 font-bold">${currentUser.name}</span>
-                    <button onclick="sessionStorage.clear(); location.reload();" class="text-xs text-gray-500">התנתק</button>
-                `;
-            }
-        }
+        return `
+            <div class="game-card" onclick="runContent(${g.id})">
+                <div class="card-inner">
+                    ${visual}
+                    <span class="text-[10px] font-black uppercase opacity-60 tracking-widest text-center">${g.title}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // ניהול אזור ההתחברות
+    const auth = document.getElementById('authArea');
+    if(currentUser) {
+        auth.innerHTML = `
+            <span class="text-cyan-400 font-bold">${currentUser.name}</span>
+            <button onclick="sessionStorage.clear(); location.reload();" class="text-xs text-gray-500 mr-2">התנתק</button>
+        `;
+    }
+}
 
         function renderAdmin() {
             const panel = document.getElementById('adminToolPanel');
