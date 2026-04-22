@@ -2,289 +2,333 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROOT OS | SECURE ACCESS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRO-PLAY | Premium Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;500&family=Inter:wght@200;400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --neon: #00f2ff;
-            --danger: #ff0055;
-            --bg: #050508;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-
-        body {
-            background-color: var(--bg);
-            background-image: radial-gradient(circle at 50% 50%, rgba(0, 242, 255, 0.02) 0%, transparent 50%);
-            color: #f0f0f0;
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-        }
-
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-        }
-
-        .admin-only { display: none; }
+        :root { --primary: #e94560; --premium: #ffd700; --cyan: #00d2ff; --bg: #050505; }
+        * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; font-family: 'Assistant', sans-serif; background: var(--bg); color: white; }
+        .site-bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, #16213e 0%, #050505 100%); }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         
-        .login-overlay {
-            position: fixed; inset: 0; background: var(--bg); z-index: 2000;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        input, select, textarea {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid var(--glass-border) !important;
-            color: white !important;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: var(--neon) !important; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-
-        .btn-neon {
-            background: var(--neon);
+        /* כפתור פרימיום משודרג */
+        .btn-premium-glow {
+            background: linear-gradient(45deg, #ffd700, #ffa500);
             color: black;
             font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            animation: pulse-gold 2s infinite;
+            border: none;
             transition: 0.3s;
         }
-
-        .btn-neon:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon); }
+        .btn-premium-glow:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(255, 215, 0, 0.7); cursor: pointer; }
         
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); }
+            100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+        }
+
+        .game-card { aspect-ratio: 1/1.1; position: relative; border-radius: 30px; background: #0a0a0a; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.5s; cursor: pointer; }
+        .card-inner { position: absolute; inset: 2px; background: #0d0d0d; border-radius: 28px; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .game-card:hover { transform: translateY(-10px); border-color: var(--cyan); }
+
+        .admin-icon { width: 110px; height: 110px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); text-align: center; }
+        .admin-icon:hover { background: rgba(0, 210, 255, 0.1); border-color: var(--cyan); transform: scale(1.1); }
+        .admin-window { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 700px; max-height: 85vh; z-index: 1000; display: none; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; }
+
+        .page { display: none; height: 100vh; width: 100vw; flex-direction: column; }
+        .page.active { display: flex; }
+        
+        #gameOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--cyan); border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .premium-badge { background: linear-gradient(45deg, #ffd700, #ff8c00); color: black; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 900; }
+        .locked-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 28px; }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body>
+    <div class="site-bg"></div>
 
-    <div id="loginPage" class="login-overlay">
-        <div class="glass-card p-10 rounded-3xl w-full max-w-md border-t-4 border-t-[var(--neon)]">
-            <div class="text-center mb-8">
-                <h2 class="text-3xl font-black italic tracking-tighter">GATEWAY <span class="text-[var(--neon)]">LOGIN</span></h2>
-                <p class="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-2">Restricted Access Area</p>
+    <section id="homePage" class="page active">
+        <header class="h-24 flex items-center justify-between px-10 glass m-6 rounded-[35px]">
+            <h1 class="text-3xl font-black italic tracking-tighter uppercase">PRO-<span style="color:var(--cyan)">PLAY</span></h1>
+            <div id="authArea" class="flex gap-4">
+                <button onclick="nav('loginPage')" class="px-6 py-2 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition">כניסה</button>
+                <button onclick="nav('registerPage')" class="px-6 py-2 bg-white text-black rounded-xl font-black hover:bg-gray-200 transition">הצטרפות</button>
             </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold opacity-50 block mb-1">IDENTIFIER</label>
-                    <input type="text" id="loginUser" class="w-full p-4 rounded-xl" placeholder="ADMIN">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold opacity-50 block mb-1">ENCRYPTION KEY</label>
-                    <input type="password" id="loginPass" class="w-full p-4 rounded-xl" placeholder="••••••••">
-                </div>
-                <button onclick="handleLogin()" class="btn-neon w-full py-4 rounded-xl mt-4 uppercase">Initialize Session</button>
-                <button onclick="bypassToGuest()" class="w-full py-2 text-xs opacity-40 hover:opacity-100 transition">Enter as Guest (View Only)</button>
-            </div>
-            <p id="loginError" class="text-[var(--danger)] text-xs mt-4 text-center hidden">INVALID CREDENTIALS</p>
-        </div>
-    </div>
-
-    <div id="mainApp" class="hidden">
-        <header class="max-w-7xl mx-auto mb-10 flex justify-between items-center">
-            <div>
-                <h1 class="text-4xl font-black italic tracking-tighter">ROOT <span class="text-[var(--neon)]">OS</span></h1>
-                <div class="flex items-center gap-2 mt-1">
-                    <span id="roleDot" class="status-dot"></span>
-                    <span id="roleText" class="text-[10px] font-mono uppercase"></span>
-                </div>
-            </div>
-            <button onclick="handleLogout()" class="px-4 py-2 glass-card rounded-lg text-xs hover:text-[var(--danger)] transition">LOGOUT_SYSTEM</button>
         </header>
+        <main id="gameGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8 p-10 overflow-y-auto flex-1 content-start"></main>
+    </section>
 
-        <div class="max-w-7xl mx-auto mb-8">
-            <input type="text" id="m_search" oninput="m_refresh()" placeholder="חפש בזיכרון המערכת..." class="w-full p-5 rounded-2xl text-lg glass-card">
+    <section id="premiumPage" class="page items-center justify-center bg-black/90">
+        <div class="glass p-12 rounded-[50px] w-full max-w-md text-center border border-amber-500/30">
+            <div class="text-6xl mb-6">💎</div>
+            <h2 class="text-4xl font-black mb-2 text-amber-500 italic uppercase">Ultimate Pro</h2>
+            <p class="text-gray-400 text-sm mb-10 leading-relaxed uppercase tracking-widest">Unlock All Content • No Ads • Golden Glow</p>
+            
+            <input type="email" id="p_email" placeholder="הכנס אימייל" class="w-full bg-white/5 p-5 rounded-2xl border border-white/10 text-center outline-none focus:border-amber-500 mb-6 transition">
+
+            <button onclick="processPremium()" class="w-full py-6 btn-premium-glow rounded-[25px] text-lg shadow-2xl uppercase">
+                שדרג עכשיו - ₪29
+            </button>
+            <button onclick="nav('homePage')" class="mt-6 text-gray-500 text-xs font-bold uppercase hover:text-white transition">ביטול</button>
         </div>
+    </section>
 
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <section>
-                <h2 class="text-sm font-black text-[var(--neon)] mb-4 font-mono">// DATABASE_GAMES</h2>
-                <div id="cat-games" class="space-y-3"></div>
-            </section>
-            <section>
-                <h2 class="text-sm font-black text-[var(--neon)] mb-4 font-mono">// DATABASE_TOOLS</h2>
-                <div id="cat-tools" class="space-y-3"></div>
-            </section>
+    <section id="adminPage" class="page">
+        <div class="h-20 flex items-center justify-between px-10 bg-white/5 border-b border-white/10">
+            <span class="font-black tracking-widest text-cyan-400">PRO-ADMIN // TERMINAL</span>
+            <button onclick="nav('homePage')" class="px-6 py-2 bg-red-500/20 text-red-500 rounded-xl font-bold">יציאה</button>
         </div>
-
-        <button id="addBtn" onclick="m_open_new()" class="admin-only fixed bottom-8 left-8 w-16 h-16 btn-neon rounded-2xl text-3xl shadow-2xl">+</button>
-    </div>
-
-    <div id="masterEditor" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[3000] hidden p-4 flex items-center justify-center">
-        <div class="glass-card w-full max-w-4xl rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="p-6 border-b border-white/10 flex justify-between items-center">
-                <h2 class="font-black italic text-xl">OBJECT_RECONSTRUCTOR</h2>
-                <button onclick="m_close()" class="text-2xl opacity-50">&times;</button>
+        <div id="adminToolPanel" class="flex-1 p-12 flex gap-8 flex-wrap content-start">
+            <div class="admin-icon" onclick="openAdminTool('addGameTool')">
+                <span class="text-4xl mb-2">🎮</span>
+                <span class="text-[10px] font-black uppercase">הוספת משחק</span>
             </div>
-            <div class="p-6 overflow-y-auto space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="m_name" placeholder="Object Name" class="p-4 rounded-xl">
-                    <select id="m_type" class="p-4 rounded-xl">
-                        <option value="game">Game</option>
-                        <option value="tool">Tool</option>
-                    </select>
-                </div>
-                <input type="text" id="m_visual" placeholder="Visual (URL or Emoji)" class="w-full p-4 rounded-xl">
-                <textarea id="m_code" class="w-full h-64 p-6 rounded-xl font-mono text-sm text-green-400" placeholder="// Insert Source Code..."></textarea>
+            <div class="admin-icon" onclick="openAdminTool('addToolWindow')">
+                <span class="text-4xl mb-2">🛠️</span>
+                <span class="text-[10px] font-black uppercase">יצירת-TOOL</span>
             </div>
-            <div class="p-6 border-t border-white/10 flex justify-between bg-white/5">
-                <button onclick="m_delete()" class="text-[var(--danger)] font-bold px-4">DELETE</button>
-                <div class="flex gap-3">
-                    <button onclick="m_close()" class="px-6 opacity-50">CANCEL</button>
-                    <button onclick="m_save()" class="btn-neon px-8 py-3 rounded-xl">DEPLOY CHANGES</button>
-                </div>
+            <div class="admin-icon" onclick="openAdminTool('manageList')">
+                <span class="text-4xl mb-2">💾</span>
+                <span class="text-[10px] font-black uppercase">ניהול תוכן</span>
             </div>
         </div>
+
+        <div id="addGameTool" class="admin-window glass rounded-[45px] p-10">
+            <h3 class="text-2xl font-black mb-6 italic text-cyan-400">DEPLOY CONTENT</h3>
+            <input type="text" id="adm_name" placeholder="שם המשחק" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
+            <textarea id="adm_code" rows="6" placeholder="קוד HTML" class="w-full bg-white/5 p-4 rounded-xl mb-4 font-mono text-xs"></textarea>
+            <div class="flex items-center gap-2 mb-6 text-amber-500 font-black">
+                <input type="checkbox" id="adm_premium" class="w-5 h-5 accent-amber-500"> נעילת פרימיום 💎
+            </div>
+            <button onclick="saveItem('game')" class="w-full py-4 bg-cyan-600 rounded-xl font-bold">שגר לאתר</button>
+            <button onclick="closeAdminTool('addGameTool')" class="w-full mt-2 text-gray-500">ביטול</button>
+        </div>
+
+        <div id="addToolWindow" class="admin-window glass rounded-[45px] p-10">
+            <h3 class="text-2xl font-black mb-6 text-emerald-400">CREATE ADMIN TOOL</h3>
+            <input type="text" id="tool_name" placeholder="שם הכלי" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
+            <input type="text" id="tool_emoji" placeholder="אימוג'י" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10 text-center">
+            <textarea id="tool_code" rows="6" placeholder="קוד הכלי" class="w-full bg-white/5 p-4 rounded-xl mb-4 font-mono text-xs"></textarea>
+            <button onclick="saveItem('tool')" class="w-full py-4 bg-emerald-600 rounded-xl font-bold">הטמע בטרמינל</button>
+            <button onclick="closeAdminTool('addToolWindow')" class="w-full mt-2 text-gray-500">ביטול</button>
+        </div>
+
+        <div id="manageList" class="admin-window glass rounded-[45px] p-10">
+            <h3 class="text-2xl font-black mb-6 text-cyan-400">CONTENT MANAGER</h3>
+            <div id="adminContentList" class="space-y-3"></div>
+            <button onclick="closeAdminTool('manageList')" class="w-full mt-6 text-gray-500">סגור</button>
+        </div>
+    </section>
+
+    <section id="registerPage" class="page items-center justify-center bg-black/80">
+        <div class="glass p-12 rounded-[40px] w-full max-w-sm text-center">
+            <h2 class="text-3xl font-black mb-8 italic uppercase">Join Terminal</h2>
+            <input type="text" id="r_user" placeholder="USER ID" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
+            <input type="password" id="r_pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl mb-8 border border-white/10">
+            <button onclick="processRegister()" class="w-full py-4 bg-white text-black rounded-xl font-black">CREATE ACCOUNT</button>
+            <button onclick="nav('homePage')" class="mt-4 text-gray-500 text-sm italic">BACK</button>
+        </div>
+    </section>
+
+    <section id="loginPage" class="page items-center justify-center bg-black/80">
+        <div class="glass p-12 rounded-[40px] w-full max-w-sm text-center">
+            <h2 class="text-3xl font-black mb-8 italic uppercase">Login</h2>
+            <input type="text" id="l_user" placeholder="USER ID" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
+            <input type="password" id="l_pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl mb-8 border border-white/10">
+            <button onclick="processLogin()" class="w-full py-4 bg-cyan-600 rounded-xl font-black uppercase">Connect</button>
+            <p class="mt-4 text-xs text-gray-500">New? <span onclick="nav('registerPage')" class="text-white cursor-pointer underline">Register</span></p>
+        </div>
+    </section>
+
+    <div id="gameOverlay">
+        <div class="h-16 flex items-center justify-between px-8 bg-black border-b border-white/10">
+            <h2 id="ovTitle" class="font-black italic text-xl text-cyan-400 uppercase"></h2>
+            <button onclick="closeGame()" class="text-3xl font-light opacity-50 hover:opacity-100 transition">&times;</button>
+        </div>
+        <div id="gameLoader" class="flex-1 flex items-center justify-center"><span class="loader"></span></div>
+        <iframe id="gameFrame" class="hidden" onload="document.getElementById('gameLoader').style.display='none'; this.classList.remove('hidden')"></iframe>
     </div>
 
     <script>
-        const DB_KEY = 'pp_ultra_v2';
-        let currentId = null;
-        let isAdmin = false;
+        let db = JSON.parse(localStorage.getItem('pp_ultra_v1')) || [];
+        let users = JSON.parse(localStorage.getItem('pp_users_v1')) || [];
+        let currentUser = JSON.parse(sessionStorage.getItem('pp_active')) || null;
 
-        // AUTH SYSTEM
-        function handleLogin() {
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
-            const error = document.getElementById('loginError');
+        function nav(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'homePage') renderHome();
+            if(id === 'adminPage') renderAdmin();
+        }
 
-            if(user === 'ADMIN' && pass === 'ADMIN1') {
-                isAdmin = true;
-                sessionStorage.setItem('root_auth', 'true');
-                startApp();
+        function openAdminTool(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeAdminTool(id) { document.getElementById(id).style.display = 'none'; }
+
+        function processRegister() {
+            const u = document.getElementById('r_user').value;
+            const p = document.getElementById('r_pass').value;
+            if(!u || !p) return alert("מלא פרטים");
+            if(users.some(x => x.name === u)) return alert("שם משתמש תפוס");
+            users.push({ name: u, pass: p, isPrem: false });
+            localStorage.setItem('pp_users_v1', JSON.stringify(users));
+            alert("נרשמת בהצלחה!");
+            nav('loginPage');
+        }
+
+        function processLogin() {
+            const u = document.getElementById('l_user').value;
+            const p = document.getElementById('l_pass').value;
+            if(u === 'admin' && p === 'admin') return nav('adminPage');
+            const found = users.find(x => x.name === u && x.pass === p);
+            if(found) { 
+                currentUser = found; 
+                sessionStorage.setItem('pp_active', JSON.stringify(found)); 
+                nav('homePage'); 
+            } else alert("פרטים שגויים");
+        }
+
+        function processPremium() {
+            const email = document.getElementById('p_email').value;
+            if(!email.includes('@')) return alert("מייל לא תקין");
+            if(!currentUser) return nav('loginPage');
+            
+            currentUser.isPrem = true;
+            const idx = users.findIndex(u => u.name === currentUser.name);
+            if(idx !== -1) users[idx].isPrem = true;
+            
+            localStorage.setItem('pp_users_v1', JSON.stringify(users));
+            sessionStorage.setItem('pp_active', JSON.stringify(currentUser));
+            
+            alert("המנוי שודרג! ברוך הבא ל-ULTIMATE PRO 💎");
+            nav('homePage');
+        }
+
+        function saveItem(type) {
+            const id = Date.now();
+            let item = { id, type };
+            if(type === 'game') {
+                item.title = document.getElementById('adm_name').value;
+                item.code = document.getElementById('adm_code').value;
+                item.isPremium = document.getElementById('adm_premium').checked;
+                if(!item.title || !item.code) return;
+                closeAdminTool('addGameTool');
             } else {
-                error.classList.remove('hidden');
+                item.title = document.getElementById('tool_name').value;
+                item.emoji = document.getElementById('tool_emoji').value || '🛠️';
+                item.code = document.getElementById('tool_code').value;
+                if(!item.title || !item.code) return;
+                closeAdminTool('addToolWindow');
             }
+            db.push(item);
+            localStorage.setItem('pp_ultra_v1', JSON.stringify(db));
+            renderAdmin();
+            alert("נשמר בהצלחה!");
         }
 
-        function bypassToGuest() {
-            isAdmin = false;
-            sessionStorage.setItem('root_auth', 'false');
-            startApp();
-        }
+        function renderHome() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = db.filter(i => i.type === 'game').map(g => {
+                const isLocked = g.isPremium && (!currentUser || !currentUser.isPrem);
+                const visual = (g.image && g.image.length > 100) 
+                    ? `<img src="${g.image}" class="w-16 h-16 rounded-2xl object-cover mb-4">`
+                    : `<div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl mb-4">🎮</div>`;
 
-        function handleLogout() {
-            sessionStorage.removeItem('root_auth');
-            location.reload();
-        }
-
-        function startApp() {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('mainApp').classList.remove('hidden');
-            
-            const roleDot = document.getElementById('roleDot');
-            const roleText = document.getElementById('roleText');
-            
-            if(isAdmin) {
-                roleDot.style.backgroundColor = 'var(--neon)';
-                roleText.innerText = 'Administrator Access';
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-            } else {
-                roleDot.style.backgroundColor = '#555';
-                roleText.innerText = 'Guest Observer';
-            }
-            m_refresh();
-        }
-
-        // APP LOGIC
-        const getDB = () => JSON.parse(localStorage.getItem(DB_KEY)) || [];
-        const saveDB = (db) => localStorage.setItem(DB_KEY, JSON.stringify(db));
-
-        function m_refresh() {
-            const db = getDB();
-            const query = document.getElementById('m_search').value.toLowerCase();
-            const cats = { game: document.getElementById('cat-games'), tool: document.getElementById('cat-tools') };
-            
-            cats.game.innerHTML = ''; cats.tool.innerHTML = '';
-
-            db.filter(x => x.title.toLowerCase().includes(query)).forEach(item => {
-                const card = document.createElement('div');
-                card.className = "glass-card p-4 rounded-xl flex justify-between items-center group transition hover:border-[var(--neon)] cursor-pointer";
-                
-                // במידה ומנהל מחובר, לחיצה פותחת עריכה. במידה ולא - לחיצה יכולה להפעיל קוד (כאן רק הצגנו)
-                if(isAdmin) card.onclick = () => m_open(item.id);
-
-                const visual = item.visual && item.visual.startsWith('http') 
-                    ? `<img src="${item.visual}" class="w-full h-full object-cover">`
-                    : `<span class="text-xl">${item.visual || '💾'}</span>`;
-
-                card.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center overflow-hidden border border-white/5">${visual}</div>
-                        <div>
-                            <div class="text-sm font-bold uppercase tracking-tight">${item.title}</div>
-                            <div class="text-[9px] font-mono opacity-30 italic">${item.id}</div>
+                return `
+                    <div class="game-card ${g.isPremium ? 'border-amber-500/20' : ''}" onclick="tryRun(${g.id})">
+                        <div class="card-inner">
+                            ${g.isPremium ? `<span class="absolute top-3 right-3 premium-badge">PREMIUM</span>` : ''}
+                            ${isLocked ? `<div class="locked-overlay"><span class="text-2xl mb-1">🔒</span><span class="text-[8px] font-black opacity-50 uppercase tracking-widest">Upgrade</span></div>` : ''}
+                            ${visual}
+                            <span class="text-[10px] font-bold uppercase opacity-60 tracking-widest text-center">${g.title}</span>
                         </div>
                     </div>
-                    ${isAdmin ? '<span class="text-[var(--neon)] opacity-0 group-hover:opacity-100 text-xs font-bold">EDIT_OBJ</span>' : ''}
                 `;
-                cats[item.type].appendChild(card);
-            });
-        }
+            }).join('');
 
-        function m_open(id) {
-            if(!isAdmin) return;
-            const item = getDB().find(x => x.id === id);
-            currentId = id;
-            document.getElementById('m_name').value = item.title;
-            document.getElementById('m_type').value = item.type;
-            document.getElementById('m_visual').value = item.visual;
-            document.getElementById('m_code').value = item.code;
-            document.getElementById('masterEditor').classList.remove('hidden');
-        }
-
-        function m_open_new() {
-            currentId = null;
-            document.getElementById('m_name').value = '';
-            document.getElementById('m_visual').value = '';
-            document.getElementById('m_code').value = '';
-            document.getElementById('masterEditor').classList.remove('hidden');
-        }
-
-        function m_save() {
-            let db = getDB();
-            const data = {
-                id: currentId || 'sys-' + Math.random().toString(36).substr(2, 7),
-                title: document.getElementById('m_name').value,
-                type: document.getElementById('m_type').value,
-                visual: document.getElementById('m_visual').value,
-                code: document.getElementById('m_code').value
-            };
-
-            if(currentId) {
-                const idx = db.findIndex(x => x.id === currentId);
-                db[idx] = data;
+            const auth = document.getElementById('authArea');
+            if(currentUser) {
+                auth.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <div class="text-sm font-black italic flex items-center gap-1">
+                                ${currentUser.isPrem ? '<span class="text-amber-500">💎</span>' : '<span class="text-cyan-400">👤</span>'}
+                                <span class="${currentUser.isPrem ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : 'text-white'}">${currentUser.name}</span>
+                            </div>
+                            ${!currentUser.isPrem ? `<button onclick="nav('premiumPage')" class="text-[10px] font-black text-amber-500 underline uppercase">Go Premium</button>` : ''}
+                        </div>
+                        <button onclick="sessionStorage.clear(); location.reload();" class="text-xs text-gray-600 hover:text-white transition uppercase font-black italic px-2 py-1 border border-white/5 rounded">Exit</button>
+                    </div>
+                `;
             } else {
-                db.push(data);
+                auth.innerHTML = `
+                    <button onclick="nav('loginPage')" class="px-6 py-2 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition uppercase text-xs">Login</button>
+                    <button onclick="nav('registerPage')" class="px-6 py-2 bg-white text-black rounded-xl font-black hover:bg-gray-200 transition uppercase text-xs">Join</button>
+                `;
             }
-
-            saveDB(db);
-            m_close();
-            m_refresh();
         }
 
-        function m_delete() {
-            if(!confirm("PURGE DATA?")) return;
-            saveDB(getDB().filter(x => x.id !== currentId));
-            m_close();
-            m_refresh();
+        function renderAdmin() {
+            const panel = document.getElementById('adminToolPanel');
+            document.querySelectorAll('.dynamic-t').forEach(el => el.remove());
+            db.filter(i => i.type === 'tool').forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'admin-icon dynamic-t';
+                div.onclick = () => runContent(t.id);
+                div.innerHTML = `<span class="text-4xl mb-2">${t.emoji}</span><span class="text-[10px] font-black uppercase">${t.title}</span>`;
+                panel.appendChild(div);
+            });
+            document.getElementById('adminContentList').innerHTML = db.map(i => `
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 hover:border-cyan-400/30 transition">
+                    <span class="text-sm font-bold">${i.type === 'tool' ? '🛠️' : '🎮'} ${i.title} ${i.isPremium ? '💎' : ''}</span>
+                    <button onclick="deleteItem(${i.id})" class="text-xs text-red-500 font-bold bg-red-500/10 px-3 py-1 rounded-lg">מחק</button>
+                </div>
+            `).join('');
         }
 
-        function m_close() { document.getElementById('masterEditor').classList.add('hidden'); }
-
-        // Auto-check session on load
-        window.onload = () => {
-            const auth = sessionStorage.getItem('root_auth');
-            if(auth === 'true') {
-                isAdmin = true;
-                startApp();
-            } else if(auth === 'false') {
-                isAdmin = false;
-                startApp();
+        function deleteItem(id) {
+            if(confirm("למחוק לצמיתות?")) {
+                db = db.filter(i => i.id !== id);
+                localStorage.setItem('pp_ultra_v1', JSON.stringify(db));
+                renderAdmin();
             }
-        };
+        }
+
+        function tryRun(id) {
+            const item = db.find(i => i.id === id);
+            if(item.isPremium && (!currentUser || !currentUser.isPrem)) return nav('premiumPage');
+            runContent(id);
+        }
+
+        function runContent(id) {
+            const item = db.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('ovTitle').innerText = item.title;
+            const frame = document.getElementById('gameFrame');
+            const loader = document.getElementById('gameLoader');
+            
+            loader.style.display = 'flex';
+            frame.classList.add('hidden');
+            
+            if(item.url) frame.src = item.url;
+            else {
+                const blob = new Blob([item.code], {type: 'text/html'});
+                frame.src = URL.createObjectURL(blob);
+            }
+            document.getElementById('gameOverlay').style.display = 'flex';
+        }
+
+        function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; document.getElementById('gameFrame').src = ''; }
+
+        window.onload = () => { renderHome(); };
     </script>
 </body>
 </html>
