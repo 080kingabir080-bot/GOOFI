@@ -2,137 +2,192 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>מערכת ניהול ומשתמשים מלאה</title>
+    <title>מערכת ניהול משחקים ומשתמשים</title>
     <style>
-        :root { --primary: #4a90e2; --admin: #e74c3c; --user: #2ecc71; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
-        .btn-login { background: var(--primary); color: white; }
-        .btn-logout { background: #666; color: white; margin-top: 20px; }
-        .toggle-link { text-align: center; margin-top: 15px; color: var(--primary); cursor: pointer; font-size: 0.9em; }
+        :root { --primary: #4a90e2; --admin: #e74c3c; --user: #2ecc71; --dark: #2c3e50; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f9fa; margin: 0; padding: 20px; color: var(--dark); }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        
+        /* UI Elements */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-admin { background: var(--admin); color: white; font-size: 0.8em; margin: 2px; }
+        .btn-logout { background: #666; color: white; float: left; }
+        
         .hidden { display: none; }
-        .status-card { padding: 15px; border-radius: 8px; margin-top: 10px; text-align: center; }
-        .admin-view { border-top: 8px solid var(--admin); }
-        .user-view { border-top: 8px solid var(--user); }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.8em; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        .card { border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        
+        /* Grid for Games */
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .game-item { border: 2px solid #eee; padding: 15px; border-radius: 12px; text-align: center; background: #fff; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: right; }
+        th { background: #f4f4f4; }
     </style>
 </head>
 <body>
 
-<div class="container" id="app">
+<div class="container">
+    <button id="logoutBtn" onclick="logout()" class="btn-logout hidden">התנתק</button>
+    
     <div id="authSection">
-        <h2 id="authTitle">התחברות</h2>
+        <h2 id="authTitle">התחברות למערכת</h2>
         <input type="email" id="email" placeholder="אימייל">
         <input type="password" id="password" placeholder="סיסמה">
+        <button onclick="handleAuth()" class="btn-primary" id="mainBtn">כניסה</button>
+        <p onclick="toggleAuthMode()" style="text-align:center; cursor:pointer; color: var(--primary);" id="toggleLink">אין לך חשבון? הירשם</p>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+        <h2 style="color: var(--admin)">ניהול מערכת</h2>
         
-        <div id="registerFields" class="hidden">
-            <select id="role">
-                <option value="user">משתמש רגיל</option>
-                <option value="admin">מנהל מערכת</option>
-            </select>
+        <div class="card">
+            <h3>פרסום משחק חדש</h3>
+            <input type="text" id="gameName" placeholder="שם המשחק">
+            <input type="text" id="gameFile" placeholder="קישור לקובץ / שם קובץ">
+            <textarea id="gameCode" placeholder="קוד המשחק או תיאור טכני"></textarea>
+            <button onclick="publishGame()" class="btn-primary" style="background: var(--dark);">פרסם משחק</button>
         </div>
 
-        <button onclick="handleAuth()" class="btn-login" id="mainBtn">כניסה</button>
-        <div class="toggle-link" onclick="toggleAuthMode()" id="toggleLink">אין לך חשבון? הירשם כאן</div>
-    </div>
-
-    <div id="adminPanel" class="hidden admin-view">
-        <h2 style="color: var(--admin)">פאנל ניהול מנהל</h2>
-        <p>רשימת משתמשים רשומים במערכת:</p>
-        <table id="userTable">
-            <thead>
-                <tr>
-                    <th>אימייל</th>
-                    <th>תפקיד</th>
-                </tr>
-            </thead>
-            <tbody id="userTableBody"></tbody>
-        </table>
-        <button onclick="logout()" class="btn-logout">התנתק</button>
-    </div>
-
-    <div id="userPage" class="hidden user-view">
-        <h2 style="color: var(--user)">אזור אישי</h2>
-        <div class="status-card" style="background: #eafaf1;">
-            <p>שלום, <strong id="userDisplayName"></strong>!</p>
-            <p>התחברת בהצלחה כמשתמש רגיל.</p>
+        <div class="card">
+            <h3>ניהול משתמשים</h3>
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>אימייל</th>
+                        <th>תפקיד</th>
+                        <th>פעולות</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+            </table>
         </div>
-        <button onclick="logout()" class="btn-logout">התנתק</button>
+    </div>
+
+    <div id="userPage" class="hidden">
+        <h2>המשחקים שלי</h2>
+        <div id="gamesContainer" class="games-grid">
+            </div>
     </div>
 </div>
 
 <script>
-    // אתחול נתונים - בודק אם יש משתמשים ב-LocalStorage, אם לא יוצר רשימה ריקה
-    let users = JSON.parse(localStorage.getItem('users')) || [];
+    // נתונים
+    let users = JSON.parse(localStorage.getItem('users')) || [
+        { email: 'admin@system.com', pass: 'admin123', role: 'admin' } // משתמש מנהל מובנה ראשון
+    ];
+    let games = JSON.parse(localStorage.getItem('games')) || [];
     let isRegisterMode = false;
 
-    // בדיקה אם יש משתמש שכבר מחובר (Keep Login)
     window.onload = () => {
         const loggedInUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (loggedInUser) {
-            showCorrectPage(loggedInUser);
-        }
+        if (loggedInUser) showCorrectPage(loggedInUser);
     };
 
     function toggleAuthMode() {
         isRegisterMode = !isRegisterMode;
-        document.getElementById('registerFields').classList.toggle('hidden');
-        document.getElementById('authTitle').innerText = isRegisterMode ? 'הרשמה חדשה' : 'התחברות';
+        document.getElementById('authTitle').innerText = isRegisterMode ? 'הרשמה (משתמש חדש)' : 'התחברות';
         document.getElementById('mainBtn').innerText = isRegisterMode ? 'צור חשבון' : 'כניסה';
-        document.getElementById('toggleLink').innerText = isRegisterMode ? 'כבר יש לך חשבון? התחבר' : 'אין לך חשבון? הירשם כאן';
     }
 
     function handleAuth() {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
-        const role = document.getElementById('role').value;
-
-        if (!email || !pass) return alert("נא למלא את כל השדות");
 
         if (isRegisterMode) {
-            // לוגיקת הרשמה
-            if (users.find(u => u.email === email)) return alert("משתמש זה כבר קיים");
-            const newUser = { email, pass, role };
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-            alert("נרשמת בהצלחה! עובר להתחברות");
+            if (users.find(u => u.email === email)) return alert("משתמש קיים");
+            users.push({ email, pass, role: 'user' }); // תמיד נרשם כמשתמש רגיל
+            save();
+            alert("נרשמת! כעת התחבר");
             toggleAuthMode();
         } else {
-            // לוגיקת התחברות
             const user = users.find(u => u.email === email && u.pass === pass);
-            if (user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                showCorrectPage(user);
-            } else {
-                alert("אימייל או סיסמה שגויים");
-            }
+            if (!user) return alert("פרטים שגויים");
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            showCorrectPage(user);
         }
     }
 
     function showCorrectPage(user) {
         document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
         
         if (user.role === 'admin') {
             document.getElementById('adminPanel').classList.remove('hidden');
             renderUserTable();
         } else {
             document.getElementById('userPage').classList.remove('hidden');
-            document.getElementById('userDisplayName').innerText = user.email;
+            renderGames();
         }
     }
 
+    // פונקציות מנהל
     function renderUserTable() {
         const tbody = document.getElementById('userTableBody');
-        tbody.innerHTML = users.map(u => `
+        tbody.innerHTML = users.map((u, index) => `
             <tr>
                 <td>${u.email}</td>
-                <td>${u.role === 'admin' ? 'מנהל' : 'משתמש'}</td>
+                <td>${u.role === 'admin' ? '<b>מנהל</b>' : 'משתמש'}</td>
+                <td>
+                    <button class="btn-admin" onclick="changeRole(${index})">שנה תפקיד</button>
+                    <button class="btn-admin" style="background:#666" onclick="resetPass(${index})">אפס סיסמה</button>
+                </td>
             </tr>
         `).join('');
+    }
+
+    function changeRole(index) {
+        users[index].role = users[index].role === 'admin' ? 'user' : 'admin';
+        save();
+        renderUserTable();
+    }
+
+    function resetPass(index) {
+        const newPass = prompt("הכנס סיסמה חדשה עבור " + users[index].email);
+        if (newPass) {
+            users[index].pass = newPass;
+            save();
+            alert("הסיסמה שונתה");
+        }
+    }
+
+    function publishGame() {
+        const name = document.getElementById('gameName').value;
+        const file = document.getElementById('gameFile').value;
+        const code = document.getElementById('gameCode').value;
+
+        if (!name || !file) return alert("מלא שם וקובץ");
+        
+        games.push({ name, file, code });
+        save();
+        alert("המשחק פורסם בהצלחה!");
+        // ניקוי טופס
+        document.getElementById('gameName').value = '';
+        document.getElementById('gameFile').value = '';
+        document.getElementById('gameCode').value = '';
+    }
+
+    // פונקציות משתמש
+    function renderGames() {
+        const container = document.getElementById('gamesContainer');
+        if (games.length === 0) {
+            container.innerHTML = "<p>אין משחקים זמינים כרגע.</p>";
+            return;
+        }
+        container.innerHTML = games.map(g => `
+            <div class="game-item">
+                <h3>${g.name}</h3>
+                <p style="font-size:0.8em; color:#888">קובץ: ${g.file}</p>
+                <button class="btn-primary" onclick="alert('מריץ קוד: ${g.code.substring(0,20)}...')">שחק עכשיו</button>
+            </div>
+        `).join('');
+    }
+
+    function save() {
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('games', JSON.stringify(games));
     }
 
     function logout() {
