@@ -380,5 +380,35 @@
             updateBackground();
         })();
     </script>
+    <script>
+    (function() {
+        function applyForcedBG() {
+            const data = localStorage.getItem('site_force_bg_v9');
+            if (!data) return;
+            const config = JSON.parse(data);
+
+            // 1. יצירת/עדכון שכבת האנימציה
+            let layer = document.getElementById('force-layer');
+            if (!layer) {
+                layer = document.createElement('div');
+                layer.id = 'force-layer';
+                document.body.appendChild(layer);
+            }
+
+            // 2. יצירת/עדכון ה-CSS
+            let styleTag = document.getElementById('force-style');
+            if (!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'force-style';
+                document.head.appendChild(styleTag);
+            }
+            styleTag.innerHTML = config.css;
+        }
+
+        // בדיקה בטעינה ובזמן שינוי
+        applyForcedBG();
+        window.addEventListener('storage', (e) => { if(e.key === 'site_force_bg_v9') applyForcedBG(); });
+    })();
+</script>
 </body>
 </html>
