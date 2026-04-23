@@ -1,382 +1,145 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { 
-  Settings, User, Plus, Trash2, Play, LayoutGrid, 
-  Terminal, Database, Palette, LogOut, ShieldCheck, 
-  Cpu, Zap, Star, MousePointer2, Code2, Rocket,
-  Fingerprint, Activity, Layers
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מערכת ניהול ומשתמשים מלאה</title>
+    <style>
+        :root { --primary: #4a90e2; --admin: #e74c3c; --user: #2ecc71; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        .btn-login { background: var(--primary); color: white; }
+        .btn-logout { background: #666; color: white; margin-top: 20px; }
+        .toggle-link { text-align: center; margin-top: 15px; color: var(--primary); cursor: pointer; font-size: 0.9em; }
+        .hidden { display: none; }
+        .status-card { padding: 15px; border-radius: 8px; margin-top: 10px; text-align: center; }
+        .admin-view { border-top: 8px solid var(--admin); }
+        .user-view { border-top: 8px solid var(--user); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.8em; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+    </style>
+</head>
+<body>
 
-// --- CONFIG & PERSISTENCE ---
-const STORAGE_KEY = 'NEXUS_OS_CORE_2026';
-
-const INITIAL_STATE = {
-  users: [
-    { id: '1', username: 'admin', password: 'admin1', role: 'admin' },
-    { id: '2', username: 'guest', password: 'password', role: 'user' }
-  ],
-  tools: [
-    { 
-      id: 't1', name: 'Neural Monitor', emoji: '🧠', 
-      code: `<div style="background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1)); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span>Sync Rate</span><span style="color: #818cf8;">98.4%</span>
-              </div>
-              <div style="height: 4px; background: #1e293b; border-radius: 10px; overflow: hidden;">
-                <div style="width: 98%; height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); box-shadow: 0 0 15px #6366f1;"></div>
-              </div>
-              <p style="font-size: 11px; margin-top: 15px; opacity: 0.6; line-height: 1.4;">Quantum processing units operating within nominal parameters.</p>
-            </div>`
-    }
-  ],
-  games: [
-    { 
-      id: 'g1', title: 'Cosmic Drift', 
-      thumbnail: 'https://images.unsplash.com/photo-1614728263952-84ea206f99b6?auto=format&fit=crop&q=80&w=600',
-      code: `<canvas id="c" style="width:100%;height:100%;"></canvas><script>
-        const c=document.getElementById('c'),x=c.getContext('2d');
-        let w,h,p=[];
-        const resize=()=>{w=c.width=c.offsetWidth;h=c.height=c.offsetHeight;};
-        window.onresize=resize;resize();
-        for(let i=0;i<100;i++)p.push({x:Math.random()*w,y:Math.random()*h,s:Math.random()*2,v:Math.random()*2});
-        const draw=()=>{
-          x.fillStyle='rgba(0,0,0,0.2)';x.fillRect(0,0,w,h);
-          x.fillStyle='#fff';
-          p.forEach(s=>{
-            s.y+=s.v;if(s.y>h)s.y=0;
-            x.beginPath();x.arc(s.x,s.y,s.s,0,Math.PI*2);x.fill();
-          });
-          requestAnimationFrame(draw);
-        };draw();
-      </script>`
-    }
-  ],
-  theme: 'Liquid Aurora'
-};
-
-// --- ANIMATION VARIANTS ---
-const pageTransition = {
-  initial: { opacity: 0, scale: 0.95, filter: 'blur(10px)' },
-  animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
-  exit: { opacity: 0, scale: 1.05, filter: 'blur(10px)' },
-  transition: { type: 'spring', damping: 20, stiffness: 100 }
-};
-
-const itemHover = {
-  scale: 1.02,
-  y: -5,
-  boxShadow: "0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(99,102,241,0.2)",
-  borderColor: "rgba(99,102,241,0.5)"
-};
-
-// --- DYNAMIC ENGINE (SANDBOXED) ---
-const DynamicWidget = ({ code }) => {
-  const container = useRef(null);
-  useEffect(() => {
-    if (!container.current) return;
-    try {
-      const fragment = document.createRange().createContextualFragment(code);
-      container.current.innerHTML = '';
-      container.current.appendChild(fragment);
-      container.current.querySelectorAll('script').forEach(s => {
-        const n = document.createElement('script');
-        n.textContent = s.textContent;
-        document.body.appendChild(n).parentNode.removeChild(n);
-      });
-    } catch (e) { console.error("Runtime Error:", e); }
-  }, [code]);
-  return <div ref={container} className="w-full h-full" />;
-};
-
-// --- MAIN APP ---
-export default function NexusOS() {
-  const [data, setData] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : INITIAL_STATE;
-  });
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState('tools');
-
-  useEffect(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(data)), [data]);
-
-  const handleLogin = (u, p) => {
-    const found = data.users.find(x => x.username === u && x.password === p);
-    if (found) { setUser(found); setIsAdmin(found.role === 'admin'); }
-    else alert('SYSTEM ERROR: INVALID CREDENTIALS');
-  };
-
-  if (!user) return <AuthScreen onLogin={handleLogin} />;
-
-  return (
-    <div className="min-h-screen bg-[#030712] text-white selection:bg-indigo-500/30 overflow-hidden font-sans">
-      <BackgroundEngine theme={data.theme} />
-      
-      {/* IRIDESCENT NAV */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-6xl">
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-3 flex items-center justify-between shadow-2xl">
-          <div className="flex items-center gap-4 px-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 blur-md opacity-50 animate-pulse" />
-              <Layers className="relative text-indigo-400" size={24} />
-            </div>
-            <span className="font-black tracking-tighter text-xl bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">NEXUS.OS</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {user.role === 'admin' && (
-              <button 
-                onClick={() => setIsAdmin(!isAdmin)}
-                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition-all ${isAdmin ? 'bg-indigo-600 text-white' : 'bg-white/5 hover:bg-white/10 text-indigo-400 border border-white/5'}`}
-              >
-                {isAdmin ? <LayoutGrid size={14}/> : <Settings size={14}/>}
-                {isAdmin ? 'USER VIEW' : 'ADMIN CONTROL'}
-              </button>
-            )}
-            <button onClick={() => setUser(null)} className="p-2 hover:bg-red-500/20 text-red-400 rounded-xl transition-all">
-              <LogOut size={20} />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <main className="pt-32 px-6 pb-20 max-w-7xl mx-auto h-screen overflow-y-auto scrollbar-hide">
-        <AnimatePresence mode="wait">
-          {!isAdmin ? (
-            <motion.div key="user" {...pageTransition}>
-              <header className="mb-12">
-                <motion.h1 
-                  initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                  className="text-6xl font-black tracking-tighter mb-2"
-                >
-                  System <span className="text-indigo-500">Operational.</span>
-                </motion.h1>
-                <p className="text-slate-400 text-lg">Identity verified: {user.username} (Level {user.role === 'admin' ? 'Alpha' : 'Beta'})</p>
-              </header>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* BENTO TOOLS */}
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {data.tools.map((tool, i) => (
-                    <motion.div
-                      key={tool.id}
-                      whileHover={itemHover}
-                      initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="group relative bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden"
-                    >
-                      <div className="p-6 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{tool.emoji}</span>
-                          <span className="font-bold tracking-tight">{tool.name}</span>
-                        </div>
-                        <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_#6366f1]" />
-                      </div>
-                      <div className="p-2 h-52">
-                        <DynamicWidget code={tool.code} />
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* GAMES SIDEBAR */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 px-2">
-                    <Rocket size={18} className="text-amber-400" />
-                    <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500">Nexus Entertainment</h2>
-                  </div>
-                  {data.games.map((game, i) => (
-                    <motion.div
-                      key={game.id}
-                      whileHover={itemHover}
-                      className="group relative h-64 rounded-[2rem] overflow-hidden border border-white/10"
-                    >
-                      <img src={game.thumbnail} className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                      <div className="absolute bottom-6 left-6 right-6">
-                        <h3 className="text-xl font-bold mb-3">{game.title}</h3>
-                        <button className="w-full bg-white text-black font-black py-3 rounded-xl scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all">
-                          INITIALIZE
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          ) : (
-            <AdminView key="admin" data={data} setData={setData} activeTab={activeTab} setActiveTab={setActiveTab} />
-          )}
-        </AnimatePresence>
-      </main>
-      
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .glass-input { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 16px; color: white; outline: none; transition: all 0.3s; }
-        .glass-input:focus { border-color: #6366f1; box-shadow: 0 0 15px rgba(99,102,241,0.2); }
-      `}</style>
-    </div>
-  );
-}
-
-// --- SUB-COMPONENTS ---
-
-function AuthScreen({ onLogin }) {
-  const [u, setU] = useState('');
-  const [p, setP] = useState('');
-
-  return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute w-[500px] h-[500px] bg-indigo-600/20 blur-[150px] rounded-full -top-48 -left-48" />
-      <div className="absolute w-[500px] h-[500px] bg-purple-600/20 blur-[150px] rounded-full -bottom-48 -right-48" />
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[3rem] p-12 shadow-3xl relative z-10"
-      >
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-500/40 mb-6">
-            <Fingerprint size={40} className="text-white" />
-          </div>
-          <h2 className="text-3xl font-black tracking-tighter">NEXUS SECURE</h2>
-          <p className="text-slate-500 text-sm mt-2">Biometric or Manual Override Required</p>
-        </div>
+<div class="container" id="app">
+    <div id="authSection">
+        <h2 id="authTitle">התחברות</h2>
+        <input type="email" id="email" placeholder="אימייל">
+        <input type="password" id="password" placeholder="סיסמה">
         
-        <div className="space-y-4">
-          <input type="text" placeholder="Access ID" className="glass-input w-full" value={u} onChange={e => setU(e.target.value)} />
-          <input type="password" placeholder="Cipher Code" className="glass-input w-full" value={p} onChange={e => setP(e.target.value)} />
-          <button 
-            onClick={() => onLogin(u, p)}
-            className="w-full bg-white text-black font-black py-4 rounded-2xl hover:bg-indigo-400 transition-all hover:translate-y-[-2px] active:translate-y-0"
-          >
-            AUTHORIZE SESSION
-          </button>
+        <div id="registerFields" class="hidden">
+            <select id="role">
+                <option value="user">משתמש רגיל</option>
+                <option value="admin">מנהל מערכת</option>
+            </select>
         </div>
-      </motion.div>
+
+        <button onclick="handleAuth()" class="btn-login" id="mainBtn">כניסה</button>
+        <div class="toggle-link" onclick="toggleAuthMode()" id="toggleLink">אין לך חשבון? הירשם כאן</div>
     </div>
-  );
-}
 
-function AdminView({ data, setData, activeTab, setActiveTab }) {
-  const tabs = [
-    { id: 'tools', icon: Terminal, label: 'FACTORY' },
-    { id: 'games', icon: Zap, label: 'STUDIO' },
-    { id: 'users', icon: Database, label: 'KERNEL' },
-    { id: 'theme', icon: Palette, label: 'VISUALS' }
-  ];
-
-  return (
-    <motion.div {...pageTransition} className="flex flex-col lg:flex-row bg-white/[0.02] border border-white/10 rounded-[3rem] overflow-hidden h-[75vh]">
-      <aside className="w-full lg:w-72 bg-white/[0.02] border-r border-white/5 p-8 flex flex-col gap-2">
-        {tabs.map(t => (
-          <button
-            key={t.id} onClick={() => setActiveTab(t.id)}
-            className={`flex items-center gap-4 p-4 rounded-2xl font-bold text-sm transition-all ${activeTab === t.id ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-white/5 text-slate-400'}`}
-          >
-            <t.icon size={18} /> {t.label}
-          </button>
-        ))}
-      </aside>
-      
-      <div className="flex-1 p-12 overflow-y-auto scrollbar-hide">
-        {activeTab === 'tools' && <ToolBuilder data={data} setData={setData} />}
-        {activeTab === 'users' && <UserCRUD data={data} setData={setData} />}
-        {activeTab === 'theme' && <ThemePicker data={data} setData={setData} />}
-      </div>
-    </motion.div>
-  );
-}
-
-function ToolBuilder({ data, setData }) {
-  const [f, setF] = useState({ name: '', emoji: '⚡', code: '' });
-  const add = () => {
-    setData({ ...data, tools: [...data.tools, { ...f, id: Date.now().toString() }] });
-    setF({ name: '', emoji: '⚡', code: '' });
-  };
-  return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-4xl font-black mb-2">Architect Factory</h2>
-        <p className="text-slate-500">Inject raw logic into the global user dashboard.</p>
-      </div>
-      <div className="grid gap-4">
-        <div className="flex gap-4">
-          <input className="glass-input flex-1" placeholder="Tool Name" value={f.name} onChange={e => setF({...f, name: e.target.value})} />
-          <input className="glass-input w-24 text-center" value={f.emoji} onChange={e => setF({...f, emoji: e.target.value})} />
-        </div>
-        <textarea 
-          className="glass-input h-64 font-mono text-indigo-300 text-sm" 
-          placeholder="Enter Component Code (HTML/JS)..." 
-          value={f.code} onChange={e => setF({...f, code: e.target.value})}
-        />
-        <button onClick={add} className="bg-indigo-600 py-4 rounded-2xl font-black hover:bg-indigo-500 transition-all flex items-center justify-center gap-2">
-          <Plus size={20} /> DEPLOY TO PRODUCTION
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function UserCRUD({ data, setData }) {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-4xl font-black">Kernel Database</h2>
-      <div className="bg-black/20 rounded-3xl border border-white/5 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-white/5 text-slate-500 text-xs font-black uppercase tracking-tighter">
-            <tr>
-              <th className="p-6">Entity ID</th>
-              <th className="p-6">Identity</th>
-              <th className="p-6">Access Role</th>
-              <th className="p-6">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {data.users.map(u => (
-              <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="p-6 font-mono text-slate-500 text-sm">{u.id}</td>
-                <td className="p-6 font-bold">{u.username}</td>
-                <td className="p-6"><span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold">{u.role}</span></td>
-                <td className="p-6"><button className="text-red-500 hover:scale-110 transition-transform"><Trash2 size={18} /></button></td>
-              </tr>
-            ))}
-          </tbody>
+    <div id="adminPanel" class="hidden admin-view">
+        <h2 style="color: var(--admin)">פאנל ניהול מנהל</h2>
+        <p>רשימת משתמשים רשומים במערכת:</p>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>אימייל</th>
+                    <th>תפקיד</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
         </table>
-      </div>
+        <button onclick="logout()" class="btn-logout">התנתק</button>
     </div>
-  );
-}
 
-function ThemePicker({ data, setData }) {
-  const themes = ['Liquid Aurora', 'Cyber Grid', 'Molecular', 'Hyper-Space'];
-  return (
-    <div className="space-y-8">
-      <h2 className="text-4xl font-black">Visual Engine</h2>
-      <div className="grid grid-cols-2 gap-6">
-        {themes.map(t => (
-          <button
-            key={t} onClick={() => setData({...data, theme: t})}
-            className={`h-40 rounded-[2.5rem] border-2 transition-all flex items-center justify-center text-xl font-black ${data.theme === t ? 'border-indigo-500 bg-indigo-500/20 text-white shadow-[0_0_30px_rgba(99,102,241,0.3)]' : 'border-white/10 text-slate-600 hover:border-white/30'}`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+    <div id="userPage" class="hidden user-view">
+        <h2 style="color: var(--user)">אזור אישי</h2>
+        <div class="status-card" style="background: #eafaf1;">
+            <p>שלום, <strong id="userDisplayName"></strong>!</p>
+            <p>התחברת בהצלחה כמשתמש רגיל.</p>
+        </div>
+        <button onclick="logout()" class="btn-logout">התנתק</button>
     </div>
-  );
-}
+</div>
 
-function BackgroundEngine({ theme }) {
-  if (theme === 'Liquid Aurora') return (
-    <div className="fixed inset-0 -z-10 bg-[#020617]">
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: 'linear' }} className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent,rgba(99,102,241,0.1),transparent)]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#020617]" />
-    </div>
-  );
-  if (theme === 'Cyber Grid') return (
-    <div className="fixed inset-0 -z-10 bg-black">
-      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '50px 50px', transform: 'perspective(500px) rotateX(60deg) translateY(-100px)' }} />
-    </div>
-  );
-  return <div className="fixed inset-0 -z-10 bg-slate-950" />;
-}
+<script>
+    // אתחול נתונים - בודק אם יש משתמשים ב-LocalStorage, אם לא יוצר רשימה ריקה
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let isRegisterMode = false;
+
+    // בדיקה אם יש משתמש שכבר מחובר (Keep Login)
+    window.onload = () => {
+        const loggedInUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (loggedInUser) {
+            showCorrectPage(loggedInUser);
+        }
+    };
+
+    function toggleAuthMode() {
+        isRegisterMode = !isRegisterMode;
+        document.getElementById('registerFields').classList.toggle('hidden');
+        document.getElementById('authTitle').innerText = isRegisterMode ? 'הרשמה חדשה' : 'התחברות';
+        document.getElementById('mainBtn').innerText = isRegisterMode ? 'צור חשבון' : 'כניסה';
+        document.getElementById('toggleLink').innerText = isRegisterMode ? 'כבר יש לך חשבון? התחבר' : 'אין לך חשבון? הירשם כאן';
+    }
+
+    function handleAuth() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const role = document.getElementById('role').value;
+
+        if (!email || !pass) return alert("נא למלא את כל השדות");
+
+        if (isRegisterMode) {
+            // לוגיקת הרשמה
+            if (users.find(u => u.email === email)) return alert("משתמש זה כבר קיים");
+            const newUser = { email, pass, role };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            alert("נרשמת בהצלחה! עובר להתחברות");
+            toggleAuthMode();
+        } else {
+            // לוגיקת התחברות
+            const user = users.find(u => u.email === email && u.pass === pass);
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showCorrectPage(user);
+            } else {
+                alert("אימייל או סיסמה שגויים");
+            }
+        }
+    }
+
+    function showCorrectPage(user) {
+        document.getElementById('authSection').classList.add('hidden');
+        
+        if (user.role === 'admin') {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            renderUserTable();
+        } else {
+            document.getElementById('userPage').classList.remove('hidden');
+            document.getElementById('userDisplayName').innerText = user.email;
+        }
+    }
+
+    function renderUserTable() {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = users.map(u => `
+            <tr>
+                <td>${u.email}</td>
+                <td>${u.role === 'admin' ? 'מנהל' : 'משתמש'}</td>
+            </tr>
+        `).join('');
+    }
+
+    function logout() {
+        localStorage.removeItem('currentUser');
+        location.reload();
+    }
+</script>
+
+</body>
+</html>
