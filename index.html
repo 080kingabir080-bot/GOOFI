@@ -328,83 +328,74 @@
 
         function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; document.getElementById('gameFrame').src = ''; }
 
+        <script>
+        // הפעלה ראשונית של דף הבית
         window.onload = () => { renderHome(); };
     </script>
-<style>
-    #bcc-layer { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-    
-    /* פקודות האנימציה שיופעלו באתר */
-    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .stars-anim { 
-        background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), 
-                          radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)); 
-        background-size: 200px 200px; animation: twinkle 3s infinite alternate; 
-    }
-    @keyframes emojiScroll { from { background-position: 0 0; } to { background-position: 500px 500px; } }
-    .emoji-anim { 
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='50' font-size='20'%3E🔥%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E💎%3C/text%3E%3C/svg%3E"); 
-        animation: emojiScroll 20s linear infinite; 
-    }
-</style>
 
-<div id="bcc-layer"></div>
+    <div id="bcc-global-layer" style="position:fixed; inset:0; z-index:-9999; pointer-events:none;"></div>
 
-<script>
-    function applyBCC() {
-        const data = JSON.parse(localStorage.getItem('site_background_settings'));
-        if (data) {
-            document.body.style.backgroundColor = data.bg;
-            document.getElementById('bcc-layer').className = data.anim;
+    <style id="bcc-core-styles">
+        body { transition: background-color 0.5s ease; }
+        
+        /* אנימציית חלל */
+        @keyframes bcc_stars { from { background-position: 0 0; } to { background-position: 0 -1000px; } }
+        .anim-space { 
+            background-image: radial-gradient(1px 1px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 150px 150px, #fff, transparent);
+            background-size: 500px 500px; animation: bcc_stars 25s linear infinite; opacity: 0.5;
         }
-    }
-    applyBCC();
-    window.addEventListener('storage', (e) => { if(e.key === 'site_background_settings') applyBCC(); });
-</script>
-<div id="bcc-global-layer" style="position:fixed; inset:0; z-index:-9999; pointer-events:none;"></div>
 
-<style id="bcc-core-styles">
-    body.bcc-active { transition: background-color 0.5s ease !important; }
-    @keyframes bccTwinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .bcc-space { 
-        background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 100px 150px, #fff, transparent);
-        background-size: 200px 200px; animation: bccTwinkle 4s infinite; 
-    }
-    @keyframes bccGrid { from { background-position: 0 0; } to { background-position: 0 50px; } }
-    .bcc-grid { 
-        background-image: linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
-        background-size: 50px 50px; animation: bccGrid 2s linear infinite;
-    }
-    @keyframes bccMatrix { from { background-position: 0 0; } to { background-position: 0 1000px; } }
-    .bcc-matrix {
-        background: linear-gradient(180deg, rgba(0,255,0,0.1) 0%, transparent 100%);
-        background-size: 100% 1000px; animation: bccMatrix 10s linear infinite;
-    }
-    @keyframes bccEmoji { from { background-position: 0 0; } to { background-position: 500px 500px; } }
-    .bcc-emojis {
-        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='50' font-size='20'%3E🔥%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E💎%3C/text%3E%3C/svg%3E");
-        animation: bccEmoji 15s linear infinite; opacity: 0.4;
-    }
-</style>
-
-<script>
-    (function() {
-        const layer = document.getElementById('bcc-global-layer');
-        const STORAGE_KEY = 'bcc_force_config';
-        function applyNow() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return;
-            const config = JSON.parse(raw);
-            document.body.style.setProperty('background-color', config.bg, 'important');
-            document.body.classList.add('bcc-active');
-            layer.className = '';
-            if (config.animId === 'space') layer.classList.add('bcc-space');
-            if (config.animId === 'grid') layer.classList.add('bcc-grid');
-            if (config.animId === 'matrix') layer.classList.add('bcc-matrix');
-            if (config.animId === 'emojis') layer.classList.add('bcc-emojis');
+        /* אנימציית אימוג'י */
+        @keyframes bcc_emojis { from { background-position: 0 0; } to { background-position: 500px 500px; } }
+        .anim-emojis { 
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='40' font-size='20'%3E💎%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E🔥%3C/text%3E%3C/svg%3E");
+            animation: bcc_emojis 20s linear infinite; opacity: 0.3;
         }
-        applyNow();
-        window.addEventListener('storage', (e) => { if (e.key === STORAGE_KEY) applyNow(); });
-    })();
-</script>
+
+        /* אנימציית מטריקס */
+        @keyframes bcc_matrix { from { background-position: 0 0; } to { background-position: 0 1000px; } }
+        .anim-matrix { 
+            background: linear-gradient(180deg, rgba(0,255,70,0.1) 0%, transparent 100%);
+            background-size: 100% 1000px; animation: bcc_matrix 8s linear infinite;
+        }
+
+        /* אנימציית רשת */
+        .anim-grid { 
+            background-image: linear-gradient(rgba(0,210,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,210,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px; 
+        }
+    </style>
+
+    <script>
+        (function() {
+            const STORAGE_KEY = 'bcc_force_config';
+            const layer = document.getElementById('bcc-global-layer');
+
+            function applyBackground() {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+
+                try {
+                    const config = JSON.parse(raw);
+                    // עדכון צבע גוף האתר
+                    document.body.style.setProperty('background-color', config.bg, 'important');
+                    
+                    // עדכון האנימציה על השכבה
+                    layer.className = ''; 
+                    if (config.animId) {
+                        layer.classList.add('anim-' + config.animId);
+                    }
+                } catch (e) { console.error("BCC Error:", e); }
+            }
+
+            // הפעלה מיידית בטעינה
+            applyBackground();
+
+            // האזנה לשינויים בזמן אמת מהכלי
+            window.addEventListener('storage', (e) => {
+                if (e.key === STORAGE_KEY) applyBackground();
+            });
+        })();
+    </script>
 </body>
 </html>
