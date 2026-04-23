@@ -2,412 +2,370 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRO-PLAY | Premium Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRA-TERMINAL X | Premium Core</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200;400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #e94560; --premium: #ffd700; --cyan: #00d2ff; --bg: transparent; }
-        * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; font-family: 'Assistant', sans-serif; background: #000; color: white; }
-        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        
-        /* כפתור פרימיום משודרג */
-        .btn-premium-glow {
-            background: linear-gradient(45deg, #ffd700, #ffa500);
-            color: black;
-            font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-            animation: pulse-gold 2s infinite;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-premium-glow:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(255, 215, 0, 0.7); cursor: pointer; }
-        
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
-            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.7); }
-            100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+        :root {
+            --primary: #00d2ff;
+            --premium: #ffd700;
+            --accent-red: #e94560;
+            --bg-deep: #020205;
+            --glass: rgba(255, 255, 255, 0.02);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .game-card { aspect-ratio: 1/1.1; position: relative; border-radius: 30px; background: #0a0a0a; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.5s; cursor: pointer; }
-        .card-inner { position: absolute; inset: 2px; background: #0d0d0d; border-radius: 28px; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .game-card:hover { transform: translateY(-10px); border-color: var(--cyan); }
+        body, html {
+            margin: 0; padding: 0; overflow: hidden; height: 100vh;
+            background-color: var(--bg-deep); color: white;
+            font-family: 'Assistant', sans-serif;
+        }
 
-        .admin-icon { width: 110px; height: 110px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        .admin-icon:hover { background: rgba(0, 210, 255, 0.1); border-color: var(--cyan); transform: scale(1.1); }
-        .admin-window { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 700px; max-height: 85vh; z-index: 1000; display: none; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; }
+        /* רקע דינמי משודרג - "רשת קוונטית" */
+        .quantum-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: 
+                radial-gradient(circle at 50% 50%, #0a1128 0%, #020205 100%),
+                linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            animation: grid-pulse 10s ease-in-out infinite;
+        }
 
-        .page { display: none; height: 100vh; width: 100vw; flex-direction: column; }
-        .page.active { display: flex; }
-        
-        #gameOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; }
-        iframe { width: 100%; height: 100%; border: none; }
-        
-        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--cyan); border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .premium-badge { background: linear-gradient(45deg, #ffd700, #ff8c00); color: black; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 900; }
-        .locked-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 28px; }
+        @keyframes grid-pulse {
+            0%, 100% { background-position: 0 0, 0 0, 0 0; opacity: 0.8; }
+            50% { background-position: 0 0, 25px 25px, 25px 25px; opacity: 1; }
+        }
+
+        /* עיצוב זכוכית (Glassmorphism) */
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+        }
+
+        /* אפקט זהב פרימיום */
+        .gold-glow {
+            border: 1px solid var(--premium);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            position: relative;
+        }
+        .gold-glow::before {
+            content: ''; position: absolute; inset: 0; border-radius: inherit;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            animation: sweep 3s linear infinite;
+        }
+
+        @keyframes sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        /* כרטיסי אפליקציה */
+        .app-card {
+            transition: var(--transition);
+            cursor: pointer; position: relative;
+        }
+        .app-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2);
+        }
+
+        /* טרמינל ניהול */
+        .terminal-window {
+            display: none; position: fixed; inset: 50px; z-index: 1000;
+            flex-direction: column; overflow: hidden;
+        }
+        .terminal-header {
+            background: rgba(255,255,255,0.05); padding: 12px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* סליידרים וכפתורים */
+        .btn-action {
+            padding: 10px 20px; border-radius: 12px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+        }
+        .btn-cyan { background: var(--primary); color: black; }
+        .btn-cyan:hover { box-shadow: 0 0 20px var(--primary); transform: brightness(1.1); }
+
+        .loader-ring {
+            width: 50px; height: 50px; border: 3px solid transparent;
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+    <div class="quantum-bg"></div>
 
-    <section id="homePage" class="page active">
-        <header class="h-24 flex items-center justify-between px-10 glass m-6 rounded-[35px]">
-            <h1 class="text-3xl font-black italic tracking-tighter uppercase">PRO-<span style="color:var(--cyan)">PLAY</span></h1>
-            <div id="authArea" class="flex gap-4">
-                <button onclick="nav('loginPage')" class="px-6 py-2 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition">כניסה</button>
-                <button onclick="nav('registerPage')" class="px-6 py-2 bg-white text-black rounded-xl font-black hover:bg-gray-200 transition">הצטרפות</button>
+    <div id="app" class="h-screen w-screen flex flex-col p-6 gap-6">
+        
+        <header class="glass h-24 flex items-center justify-between px-10 shrink-0 border-b border-white/5">
+            <div class="flex items-center gap-6">
+                <div class="p-3 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl shadow-lg shadow-cyan-500/20">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black italic tracking-tight text-white">ULTRA-<span class="text-cyan-400">CORE</span></h1>
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-cyan-500/60 font-bold">X-Series Autonomous Terminal</p>
+                </div>
             </div>
+
+            <div id="auth-panel" class="flex items-center gap-4">
+                </div>
         </header>
-        <main id="gameGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8 p-10 overflow-y-auto flex-1 content-start"></main>
-    </section>
 
-    <section id="premiumPage" class="page items-center justify-center bg-transparent"">
-        <div class="glass p-12 rounded-[50px] w-full max-w-md text-center border border-amber-500/30">
-            <div class="text-6xl mb-6">💎</div>
-            <h2 class="text-4xl font-black mb-2 text-amber-500 italic uppercase">Ultimate Pro</h2>
-            <p class="text-gray-400 text-sm mb-10 leading-relaxed uppercase tracking-widest">Unlock All Content • No Ads • Golden Glow</p>
-            
-            <input type="email" id="p_email" placeholder="הכנס אימייל" class="w-full bg-white/5 p-5 rounded-2xl border border-white/10 text-center outline-none focus:border-amber-500 mb-6 transition">
+        <main id="core-grid" class="flex-1 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 overflow-y-auto p-4 content-start">
+            </main>
 
-            <button onclick="processPremium()" class="w-full py-6 btn-premium-glow rounded-[25px] text-lg shadow-2xl uppercase">
-                שדרג עכשיו - ₪29
-            </button>
-            <button onclick="nav('homePage')" class="mt-6 text-gray-500 text-xs font-bold uppercase hover:text-white transition">ביטול</button>
-        </div>
-    </section>
-
-    <section id="adminPage" class="page">
-        <div class="h-20 flex items-center justify-between px-10 bg-white/5 border-b border-white/10">
-            <span class="font-black tracking-widest text-cyan-400">PRO-ADMIN // TERMINAL</span>
-            <button onclick="nav('homePage')" class="px-6 py-2 bg-red-500/20 text-red-500 rounded-xl font-bold">יציאה</button>
-        </div>
-        <div id="adminToolPanel" class="flex-1 p-12 flex gap-8 flex-wrap content-start">
-            <div class="admin-icon" onclick="openAdminTool('addGameTool')">
-                <span class="text-4xl mb-2">🎮</span>
-                <span class="text-[10px] font-black uppercase">הוספת משחק</span>
+        <footer class="glass h-12 flex items-center justify-between px-10 text-[10px] font-mono text-white/40 uppercase tracking-widest shrink-0">
+            <div class="flex gap-6">
+                <span>System Status: <span class="text-green-500">Operational</span></span>
+                <span id="uptime-display">Uptime: 00:00:00</span>
             </div>
-            <div class="admin-icon" onclick="openAdminTool('addToolWindow')">
-                <span class="text-4xl mb-2">🛠️</span>
-                <span class="text-[10px] font-black uppercase">יצירת-TOOL</span>
+            <div id="version-tag">Version 10.4.2 [Quantum Alpha]</div>
+        </footer>
+    </div>
+
+    <div id="view-overlay" class="fixed inset-0 z-[2000] glass hidden flex-col border-none rounded-none">
+        <div class="terminal-header">
+            <h2 id="view-title" class="font-black italic text-cyan-400">LOADING APP...</h2>
+            <button onclick="CoreEngine.closeApp()" class="text-3xl font-light hover:text-red-500 transition-colors">&times;</button>
+        </div>
+        <div class="flex-1 relative">
+            <div id="app-loader" class="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+                <div class="loader-ring"></div>
             </div>
-            <div class="admin-icon" onclick="openAdminTool('manageList')">
-                <span class="text-4xl mb-2">💾</span>
-                <span class="text-[10px] font-black uppercase">ניהול תוכן</span>
+            <iframe id="app-frame" class="w-full h-full border-none"></iframe>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="terminal-window glass shadow-2xl">
+        <div class="terminal-header">
+            <span class="font-black text-xs text-red-500 tracking-widest">SYSTEM_CORE_MODERATOR // ACCESS: GRANTED</span>
+            <button onclick="CoreEngine.togglePanel('admin-panel')" class="text-xl">&times;</button>
+        </div>
+        <div class="flex-1 flex overflow-hidden">
+            <div class="w-64 bg-white/5 border-r border-white/5 p-6 space-y-4">
+                <button onclick="CoreEngine.switchAdminTab('add')" class="w-full text-right p-3 rounded-xl hover:bg-cyan-500/10 text-xs font-bold transition">הוספת תוכן</button>
+                <button onclick="CoreEngine.switchAdminTab('manage')" class="w-full text-right p-3 rounded-xl hover:bg-cyan-500/10 text-xs font-bold transition">ניהול רשימות</button>
+                <button onclick="CoreEngine.switchAdminTab('system')" class="w-full text-right p-3 rounded-xl hover:bg-cyan-500/10 text-xs font-bold transition">הגדרות ליבה</button>
+                <button onclick="CoreEngine.switchAdminTab('logs')" class="w-full text-right p-3 rounded-xl hover:bg-cyan-500/10 text-xs font-bold transition">יומן אירועים</button>
             </div>
+            <div id="admin-view" class="flex-1 p-10 overflow-y-auto font-mono">
+                </div>
         </div>
-
-        <div id="addGameTool" class="admin-window glass rounded-[45px] p-10">
-            <h3 class="text-2xl font-black mb-6 italic text-cyan-400">DEPLOY CONTENT</h3>
-            <input type="text" id="adm_name" placeholder="שם המשחק" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
-            <textarea id="adm_code" rows="6" placeholder="קוד HTML" class="w-full bg-white/5 p-4 rounded-xl mb-4 font-mono text-xs"></textarea>
-            <div class="flex items-center gap-2 mb-6 text-amber-500 font-black">
-                <input type="checkbox" id="adm_premium" class="w-5 h-5 accent-amber-500"> נעילת פרימיום 💎
-            </div>
-            <button onclick="saveItem('game')" class="w-full py-4 bg-cyan-600 rounded-xl font-bold">שגר לאתר</button>
-            <button onclick="closeAdminTool('addGameTool')" class="w-full mt-2 text-gray-500">ביטול</button>
-        </div>
-
-        <div id="addToolWindow" class="admin-window glass rounded-[45px] p-10">
-            <h3 class="text-2xl font-black mb-6 text-emerald-400">CREATE ADMIN TOOL</h3>
-            <input type="text" id="tool_name" placeholder="שם הכלי" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
-            <input type="text" id="tool_emoji" placeholder="אימוג'י" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10 text-center">
-            <textarea id="tool_code" rows="6" placeholder="קוד הכלי" class="w-full bg-white/5 p-4 rounded-xl mb-4 font-mono text-xs"></textarea>
-            <button onclick="saveItem('tool')" class="w-full py-4 bg-emerald-600 rounded-xl font-bold">הטמע בטרמינל</button>
-            <button onclick="closeAdminTool('addToolWindow')" class="w-full mt-2 text-gray-500">ביטול</button>
-        </div>
-
-        <div id="manageList" class="admin-window glass rounded-[45px] p-10">
-            <h3 class="text-2xl font-black mb-6 text-cyan-400">CONTENT MANAGER</h3>
-            <div id="adminContentList" class="space-y-3"></div>
-            <button onclick="closeAdminTool('manageList')" class="w-full mt-6 text-gray-500">סגור</button>
-        </div>
-    </section>
-
-    <section id="registerPage" class="page items-center justify-center bg-transparent">
-        <div class="glass p-12 rounded-[40px] w-full max-w-sm text-center">
-            <h2 class="text-3xl font-black mb-8 italic uppercase">Join Terminal</h2>
-            <input type="text" id="r_user" placeholder="USER ID" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
-            <input type="password" id="r_pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl mb-8 border border-white/10">
-            <button onclick="processRegister()" class="w-full py-4 bg-white text-black rounded-xl font-black">CREATE ACCOUNT</button>
-            <button onclick="nav('homePage')" class="mt-4 text-gray-500 text-sm italic">BACK</button>
-        </div>
-    </section>
-
-    <section id="loginPage" class="page items-center justify-center bg-transparent">
-        <div class="glass p-12 rounded-[40px] w-full max-w-sm text-center">
-            <h2 class="text-3xl font-black mb-8 italic uppercase">Login</h2>
-            <input type="text" id="l_user" placeholder="USER ID" class="w-full bg-white/5 p-4 rounded-xl mb-4 border border-white/10">
-            <input type="password" id="l_pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl mb-8 border border-white/10">
-            <button onclick="processLogin()" class="w-full py-4 bg-cyan-600 rounded-xl font-black uppercase">Connect</button>
-            <p class="mt-4 text-xs text-gray-500">New? <span onclick="nav('registerPage')" class="text-white cursor-pointer underline">Register</span></p>
-        </div>
-    </section>
-
-    <div id="gameOverlay">
-        <div class="h-16 flex items-center justify-between px-8 bg-black border-b border-white/10">
-            <h2 id="ovTitle" class="font-black italic text-xl text-cyan-400 uppercase"></h2>
-            <button onclick="closeGame()" class="text-3xl font-light opacity-50 hover:opacity-100 transition">&times;</button>
-        </div>
-        <div id="gameLoader" class="flex-1 flex items-center justify-center"><span class="loader"></span></div>
-        <iframe id="gameFrame" class="hidden" onload="document.getElementById('gameLoader').style.display='none'; this.classList.remove('hidden')"></iframe>
     </div>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('pp_ultra_v1')) || [];
-        let users = JSON.parse(localStorage.getItem('pp_users_v1')) || [];
-        let currentUser = JSON.parse(sessionStorage.getItem('pp_active')) || null;
+        const CoreEngine = {
+            state: {
+                user: JSON.parse(localStorage.getItem('ultra_x_user')) || null,
+                db: JSON.parse(localStorage.getItem('ultra_x_db')) || [
+                    { id: 101, title: 'Business Caesar', type: 'game', premium: true, code: '<h1>Business Caesar Engine</h1>' },
+                    { id: 102, title: 'Military Strategy', type: 'game', premium: false, code: '<h1>War Room</h1>' },
+                    { id: 103, title: 'Monster Tamer', type: 'game', premium: true, code: '<h1>Pet Lab</h1>' }
+                ],
+                logs: JSON.parse(localStorage.getItem('ultra_x_logs')) || [],
+                startTime: Date.now()
+            },
 
-        function nav(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'homePage') renderHome();
-            if(id === 'adminPage') renderAdmin();
-        }
+            init() {
+                this.renderUI();
+                this.updateUptime();
+                setInterval(() => this.updateUptime(), 1000);
+            },
 
-        function openAdminTool(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeAdminTool(id) { document.getElementById(id).style.display = 'none'; }
+            // --- UI RENDERERS ---
+            renderUI() {
+                this.renderAuth();
+                this.renderGrid();
+            },
 
-        function processRegister() {
-            const u = document.getElementById('r_user').value;
-            const p = document.getElementById('r_pass').value;
-            if(!u || !p) return alert("מלא פרטים");
-            if(users.some(x => x.name === u)) return alert("שם משתמש תפוס");
-            users.push({ name: u, pass: p, isPrem: false });
-            localStorage.setItem('pp_users_v1', JSON.stringify(users));
-            alert("נרשמת בהצלחה!");
-            nav('loginPage');
-        }
-
-        function processLogin() {
-            const u = document.getElementById('l_user').value;
-            const p = document.getElementById('l_pass').value;
-            if(u === 'admin' && p === 'admin') return nav('adminPage');
-            const found = users.find(x => x.name === u && x.pass === p);
-            if(found) { 
-                currentUser = found; 
-                sessionStorage.setItem('pp_active', JSON.stringify(found)); 
-                nav('homePage'); 
-            } else alert("פרטים שגויים");
-        }
-
-        function processPremium() {
-            const email = document.getElementById('p_email').value;
-            if(!email.includes('@')) return alert("מייל לא תקין");
-            if(!currentUser) return nav('loginPage');
-            
-            currentUser.isPrem = true;
-            const idx = users.findIndex(u => u.name === currentUser.name);
-            if(idx !== -1) users[idx].isPrem = true;
-            
-            localStorage.setItem('pp_users_v1', JSON.stringify(users));
-            sessionStorage.setItem('pp_active', JSON.stringify(currentUser));
-            
-            alert("המנוי שודרג! ברוך הבא ל-ULTIMATE PRO 💎");
-            nav('homePage');
-        }
-
-        function saveItem(type) {
-            const id = Date.now();
-            let item = { id, type };
-            if(type === 'game') {
-                item.title = document.getElementById('adm_name').value;
-                item.code = document.getElementById('adm_code').value;
-                item.isPremium = document.getElementById('adm_premium').checked;
-                if(!item.title || !item.code) return;
-                closeAdminTool('addGameTool');
-            } else {
-                item.title = document.getElementById('tool_name').value;
-                item.emoji = document.getElementById('tool_emoji').value || '🛠️';
-                item.code = document.getElementById('tool_code').value;
-                if(!item.title || !item.code) return;
-                closeAdminTool('addToolWindow');
-            }
-            db.push(item);
-            localStorage.setItem('pp_ultra_v1', JSON.stringify(db));
-            renderAdmin();
-            alert("נשמר בהצלחה!");
-        }
-
-        function renderHome() {
-            const grid = document.getElementById('gameGrid');
-            grid.innerHTML = db.filter(i => i.type === 'game').map(g => {
-                const isLocked = g.isPremium && (!currentUser || !currentUser.isPrem);
-                const visual = (g.image && g.image.length > 100) 
-                    ? `<img src="${g.image}" class="w-16 h-16 rounded-2xl object-cover mb-4">`
-                    : `<div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-3xl mb-4">🎮</div>`;
-
-                return `
-                    <div class="game-card ${g.isPremium ? 'border-amber-500/20' : ''}" onclick="tryRun(${g.id})">
-                        <div class="card-inner">
-                            ${g.isPremium ? `<span class="absolute top-3 right-3 premium-badge">PREMIUM</span>` : ''}
-                            ${isLocked ? `<div class="locked-overlay"><span class="text-2xl mb-1">🔒</span><span class="text-[8px] font-black opacity-50 uppercase tracking-widest">Upgrade</span></div>` : ''}
-                            ${visual}
-                            <span class="text-[10px] font-bold uppercase opacity-60 tracking-widest text-center">${g.title}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const auth = document.getElementById('authArea');
-            if(currentUser) {
-                auth.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="text-right">
-                            <div class="text-sm font-black italic flex items-center gap-1">
-                                ${currentUser.isPrem ? '<span class="text-amber-500">💎</span>' : '<span class="text-cyan-400">👤</span>'}
-                                <span class="${currentUser.isPrem ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : 'text-white'}">${currentUser.name}</span>
+            renderAuth() {
+                const panel = document.getElementById('auth-panel');
+                if (this.state.user) {
+                    const isPremium = this.state.user.role === 'admin';
+                    panel.innerHTML = `
+                        <div class="flex items-center gap-6 glass p-2 px-6 rounded-2xl border-white/5">
+                            <div class="text-right">
+                                <div class="text-xs font-black flex items-center gap-2 justify-end">
+                                    ${isPremium ? '<span class="text-amber-500 animate-pulse">💎 ULTIMATE</span>' : '<span class="text-cyan-400">ASAD_TESTER</span>'}
+                                    <span class="text-white">${this.state.user.name}</span>
+                                </div>
+                                <div class="text-[8px] text-white/30 uppercase font-mono">Session ID: ${Math.random().toString(16).slice(2,8)}</div>
                             </div>
-                            ${!currentUser.isPrem ? `<button onclick="nav('premiumPage')" class="text-[10px] font-black text-amber-500 underline uppercase">Go Premium</button>` : ''}
+                            <div class="h-8 w-px bg-white/10"></div>
+                            ${isPremium ? `<button onclick="CoreEngine.togglePanel('admin-panel')" class="text-xs font-black text-cyan-400 hover:text-white transition uppercase">Control</button>` : ''}
+                            <button onclick="CoreEngine.logout()" class="text-[10px] font-bold opacity-40 hover:opacity-100 uppercase">Exit</button>
                         </div>
-                        <button onclick="sessionStorage.clear(); location.reload();" class="text-xs text-gray-600 hover:text-white transition uppercase font-black italic px-2 py-1 border border-white/5 rounded">Exit</button>
-                    </div>
-                `;
-            } else {
-                auth.innerHTML = `
-                    <button onclick="nav('loginPage')" class="px-6 py-2 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition uppercase text-xs">Login</button>
-                    <button onclick="nav('registerPage')" class="px-6 py-2 bg-white text-black rounded-xl font-black hover:bg-gray-200 transition uppercase text-xs">Join</button>
-                `;
+                    `;
+                } else {
+                    panel.innerHTML = `
+                        <button onclick="CoreEngine.showLogin()" class="btn-action btn-cyan shadow-lg shadow-cyan-500/20">Identify Self</button>
+                    `;
+                }
+            },
+
+            renderGrid() {
+                const grid = document.getElementById('core-grid');
+                grid.innerHTML = this.state.db.map(item => {
+                    const isLocked = item.premium && (!this.state.user || this.state.user.role !== 'admin');
+                    return `
+                        <div onclick="CoreEngine.launchApp(${item.id})" class="app-card glass p-6 aspect-square flex flex-col items-center justify-center text-center ${item.premium ? 'gold-glow' : ''}">
+                            ${isLocked ? `<div class="absolute inset-0 z-10 bg-black/80 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center">
+                                <span class="text-3xl mb-2">🔒</span>
+                                <span class="text-[10px] font-black text-amber-500 tracking-widest uppercase">Premium Only</span>
+                            </div>` : ''}
+                            <div class="text-5xl mb-4 drop-shadow-2xl">${item.type === 'game' ? '🎮' : '🛠️'}</div>
+                            <div class="text-[11px] font-black uppercase tracking-tighter text-white/80">${item.title}</div>
+                            <div class="mt-2 text-[8px] font-mono text-cyan-500/50">${item.type.toUpperCase()} // ID:${item.id}</div>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            // --- AUTH LOGIC ---
+            showLogin() {
+                const name = prompt("Enter Identity:");
+                const pass = prompt("Enter Secret:");
+                if ((name === 'admin' && pass === 'admin') || (name === 'asad' && pass === 'asad')) {
+                    this.state.user = { name, role: name };
+                    localStorage.setItem('ultra_x_user', JSON.stringify(this.state.user));
+                    this.addLog(`User Login: ${name}`);
+                    this.renderUI();
+                } else {
+                    alert("ACCESS REJECTED");
+                }
+            },
+
+            logout() {
+                localStorage.removeItem('ultra_x_user');
+                location.reload();
+            },
+
+            // --- APP MANAGEMENT ---
+            launchApp(id) {
+                const item = this.state.db.find(i => i.id === id);
+                if (item.premium && this.state.user?.role !== 'admin') return alert("AUTHORIZATION FAILED");
+
+                const overlay = document.getElementById('view-overlay');
+                const frame = document.getElementById('app-frame');
+                const loader = document.getElementById('app-loader');
+
+                document.getElementById('view-title').innerText = `EXECUTING: ${item.title}`;
+                overlay.style.display = 'flex';
+                loader.style.display = 'flex';
+                
+                setTimeout(() => {
+                    const blob = new Blob([item.code || ''], {type: 'text/html'});
+                    frame.src = URL.createObjectURL(blob);
+                    loader.style.display = 'none';
+                }, 800);
+                
+                this.addLog(`Launched App: ${item.title}`);
+            },
+
+            closeApp() {
+                document.getElementById('view-overlay').style.display = 'none';
+                document.getElementById('app-frame').src = '';
+            },
+
+            // --- ADMIN TABS ---
+            switchAdminTab(tab) {
+                const view = document.getElementById('admin-view');
+                if (tab === 'add') {
+                    view.innerHTML = `
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-black text-cyan-400">DEPLOY NEW MODULE</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <input id="adm_title" type="text" placeholder="שם המשחק/כלי" class="bg-white/5 border border-white/10 p-4 rounded-xl text-white outline-none">
+                                <select id="adm_type" class="bg-white/5 border border-white/10 p-4 rounded-xl text-white">
+                                    <option value="game">משחק</option>
+                                    <option value="tool">כלי עבודה</option>
+                                </select>
+                            </div>
+                            <textarea id="adm_code" placeholder="<html> Source Code" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl text-xs h-64 text-cyan-300 font-mono"></textarea>
+                            <label class="flex items-center gap-4 text-amber-500 font-black cursor-pointer">
+                                <input id="adm_prem" type="checkbox" class="w-6 h-6 accent-amber-500"> נעילת פרימיום (GOLD GLOW)
+                            </label>
+                            <button onclick="CoreEngine.saveNewItem()" class="w-full py-5 bg-cyan-500 text-black font-black rounded-xl hover:scale-[0.99] transition">הזרק קוד לליבה</button>
+                        </div>
+                    `;
+                } else if (tab === 'manage') {
+                    view.innerHTML = `
+                        <h3 class="text-xl font-black mb-6 text-cyan-400">MANAGE CORE ASSETS</h3>
+                        <div class="space-y-3">
+                            ${this.state.db.map(i => `
+                                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <span class="text-sm font-bold uppercase">${i.title} <span class="opacity-30 ml-4">#${i.id}</span></span>
+                                    <button onclick="CoreEngine.deleteItem(${i.id})" class="text-red-500 font-black text-[10px] bg-red-500/10 px-4 py-2 rounded-lg">WIPE DATA</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (tab === 'logs') {
+                    view.innerHTML = `
+                        <h3 class="text-xl font-black mb-6 text-cyan-400">SYSTEM LOGS</h3>
+                        <div class="text-[10px] space-y-1">
+                            ${this.state.logs.slice().reverse().map(l => `<div><span class="text-white/20">[${l.time}]</span> <span class="text-cyan-500">${l.msg}</span></div>`).join('')}
+                        </div>
+                    `;
+                }
+            },
+
+            saveNewItem() {
+                const item = {
+                    id: Date.now(),
+                    title: document.getElementById('adm_title').value,
+                    type: document.getElementById('adm_type').value,
+                    code: document.getElementById('adm_code').value,
+                    premium: document.getElementById('adm_prem').checked
+                };
+                if (!item.title || !item.code) return alert("DATA INCOMPLETE");
+                this.state.db.push(item);
+                localStorage.setItem('ultra_x_db', JSON.stringify(this.state.db));
+                this.addLog(`Added New Content: ${item.title}`);
+                this.renderGrid();
+                this.switchAdminTab('manage');
+            },
+
+            deleteItem(id) {
+                if (!confirm("CONFIRM DATA DESTRUCTION?")) return;
+                this.state.db = this.state.db.filter(i => i.id !== id);
+                localStorage.setItem('ultra_x_db', JSON.stringify(this.state.db));
+                this.renderGrid();
+                this.switchAdminTab('manage');
+            },
+
+            // --- UTILS ---
+            togglePanel(id) {
+                const el = document.getElementById(id);
+                el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
+                if (id === 'admin-panel') this.switchAdminTab('add');
+            },
+
+            addLog(msg) {
+                const time = new Date().toLocaleTimeString();
+                this.state.logs.push({ time, msg });
+                if (this.state.logs.length > 50) this.state.logs.shift();
+                localStorage.setItem('ultra_x_logs', JSON.stringify(this.state.logs));
+            },
+
+            updateUptime() {
+                const diff = Math.floor((Date.now() - this.state.startTime) / 1000);
+                const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+                const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+                const s = String(diff % 60).padStart(2, '0');
+                document.getElementById('uptime-display').innerText = `Uptime: ${h}:${m}:${s}`;
             }
-        }
+        };
 
-        function renderAdmin() {
-            const panel = document.getElementById('adminToolPanel');
-            document.querySelectorAll('.dynamic-t').forEach(el => el.remove());
-            db.filter(i => i.type === 'tool').forEach(t => {
-                const div = document.createElement('div');
-                div.className = 'admin-icon dynamic-t';
-                div.onclick = () => runContent(t.id);
-                div.innerHTML = `<span class="text-4xl mb-2">${t.emoji}</span><span class="text-[10px] font-black uppercase">${t.title}</span>`;
-                panel.appendChild(div);
-            });
-            document.getElementById('adminContentList').innerHTML = db.map(i => `
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 hover:border-cyan-400/30 transition">
-                    <span class="text-sm font-bold">${i.type === 'tool' ? '🛠️' : '🎮'} ${i.title} ${i.isPremium ? '💎' : ''}</span>
-                    <button onclick="deleteItem(${i.id})" class="text-xs text-red-500 font-bold bg-red-500/10 px-3 py-1 rounded-lg">מחק</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteItem(id) {
-            if(confirm("למחוק לצמיתות?")) {
-                db = db.filter(i => i.id !== id);
-                localStorage.setItem('pp_ultra_v1', JSON.stringify(db));
-                renderAdmin();
-            }
-        }
-
-        function tryRun(id) {
-            const item = db.find(i => i.id === id);
-            if(item.isPremium && (!currentUser || !currentUser.isPrem)) return nav('premiumPage');
-            runContent(id);
-        }
-
-        function runContent(id) {
-            const item = db.find(i => i.id === id);
-            if(!item) return;
-            document.getElementById('ovTitle').innerText = item.title;
-            const frame = document.getElementById('gameFrame');
-            const loader = document.getElementById('gameLoader');
-            
-            loader.style.display = 'flex';
-            frame.classList.add('hidden');
-            
-            if(item.url) frame.src = item.url;
-            else {
-                const blob = new Blob([item.code], {type: 'text/html'});
-                frame.src = URL.createObjectURL(blob);
-            }
-            document.getElementById('gameOverlay').style.display = 'flex';
-        }
-
-        function closeGame() { document.getElementById('gameOverlay').style.display = 'none'; document.getElementById('gameFrame').src = ''; }
-
-        window.onload = () => { renderHome(); };
-   </script>
-
-    <div id="bcc-layer-v7" style="position:fixed; inset:0; z-index:-5; pointer-events:none;"></div>
-
-    <style>
-        body { transition: background-color 0.8s ease !important; }
-        
-        @keyframes bcc_stars_move { from { background-position: 0 0; } to { background-position: 0 -1000px; } }
-        .bcc-anim-space { 
-            background-image: radial-gradient(1px 1px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 150px 150px, #fff, transparent);
-            background-size: 400px 400px; animation: bcc_stars_move 30s linear infinite; opacity: 0.4;
-        }
-
-        @keyframes bcc_emoji_scroll { from { background-position: 0 0; } to { background-position: 500px 500px; } }
-        .bcc-anim-emojis { 
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='40' font-size='20'%3E💎%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E🔥%3C/text%3E%3C/svg%3E");
-            animation: bcc_emoji_scroll 20s linear infinite; opacity: 0.3;
-        }
-
-        @keyframes bcc_matrix_fall { from { background-position: 0 0; } to { background-position: 0 1000px; } }
-        .bcc-anim-matrix { 
-            background: linear-gradient(180deg, rgba(0,255,70,0.15) 0%, transparent 100%);
-            background-size: 100% 1000px; animation: bcc_matrix_fall 10s linear infinite;
-        }
-
-        .bcc-anim-grid { 
-            background-image: linear-gradient(rgba(0,210,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0,210,255,0.07) 1px, transparent 1px);
-            background-size: 50px 50px; 
-        }
-    </style>
-
-    <script>
-        (function() {
-            const B_KEY = 'bcc_force_config';
-            const layer = document.getElementById('bcc-layer-v7');
-
-            function updateBackground() {
-                const raw = localStorage.getItem(B_KEY);
-                if (!raw) return;
-                try {
-                    const config = JSON.parse(raw);
-                    if (config.bg) document.body.style.setProperty('background-color', config.bg, 'important');
-                    layer.className = '';
-                    if (config.animId) layer.classList.add('bcc-anim-' + config.animId);
-                } catch (e) {}
-            }
-
-            window.addEventListener('storage', (e) => { if (e.key === B_KEY) updateBackground(); });
-            updateBackground();
-        })();
+        window.onload = () => CoreEngine.init();
     </script>
-    <script>
-    (function() {
-        function applyForcedBG() {
-            const data = localStorage.getItem('site_force_bg_v9');
-            if (!data) return;
-            const config = JSON.parse(data);
-
-            // 1. יצירת/עדכון שכבת האנימציה
-            let layer = document.getElementById('force-layer');
-            if (!layer) {
-                layer = document.createElement('div');
-                layer.id = 'force-layer';
-                document.body.appendChild(layer);
-            }
-
-            // 2. יצירת/עדכון ה-CSS
-            let styleTag = document.getElementById('force-style');
-            if (!styleTag) {
-                styleTag = document.createElement('style');
-                styleTag.id = 'force-style';
-                document.head.appendChild(styleTag);
-            }
-            styleTag.innerHTML = config.css;
-        }
-
-        // בדיקה בטעינה ובזמן שינוי
-        applyForcedBG();
-        window.addEventListener('storage', (e) => { if(e.key === 'site_force_bg_v9') applyForcedBG(); });
-    })();
-</script>
 </body>
 </html>
